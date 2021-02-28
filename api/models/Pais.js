@@ -22,5 +22,4 @@ const Pais = sequelize.define('Pais', {
   },
 }, { tableName });
 
-
 module.exports = Pais;

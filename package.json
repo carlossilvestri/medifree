@@ -24,7 +24,9 @@
     "pretest": "npm run lint",
     "production": "cross-env NODE_ENV=production node ./api/api.js",
     "test": "npm run create-sqlite-db; cross-env NODE_ENV=testing jest --coverage; npm run drop-sqlite-db",
-    "test-ci": "jest --coverage --forceExit"
+    "test-ci": "jest --coverage --forceExit",
+    "desarrollo": "concurrently \"npm run nodemon \" \"npm run watch\" ",
+    "watch": "webpack --w --mode development"
   },
   "jest": {
     "globals": {
@@ -38,6 +40,7 @@
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",
     "body-parser": "^1.18.2",
+    "concurrently": "^6.0.0",
     "core-js": "^2.6.9",
     "cors": "^2.8.4",
     "dotenv": "^8.2.0",
@@ -45,8 +48,10 @@
     "express-routes-mapper": "^1.0.2",
     "helmet": "^3.12.0",
     "jsonwebtoken": "^8.2.1",
+    "mysql2": "^2.2.5",
     "sequelize": "^6.0.0",
-    "sqlite3": "^4.0.0"
+    "sqlite3": "^4.0.0",
+    "webpack": "^5.24.2"
   },
   "devDependencies": {
     "cross-env": "^5.1.4",

@@ -1,5 +1,5 @@
 //Extraer valores de variables.env
-require('cross-env').config({ path: 'variables.env' });
+require('dotenv').config({ path: 'variables.env' });
 const development = {
   database: process.env.DB_NAME,
   username: process.env.DB_USER,
@@ -9,10 +9,10 @@ const development = {
 };
 
 const testing = {
-  database: 'medifree',
-  username: 'root',
-  password: '',
-  host: 'localhost',
+  database: process.env.DB_NAME,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  host: process.env.DB_HOST,
   dialect: 'mysql',
 };
 

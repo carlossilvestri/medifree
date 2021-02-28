@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 const path = require('path');
-
+require('dotenv').config({ path: 'variables.env' });
 const connection = require('./connection');
 
 let database;
@@ -46,9 +46,10 @@ switch (process.env.NODE_ENV) {
         pool: {
           max: 5,
           min: 0,
-          idle: 10000,
-        },
-        storage: path.join(process.cwd(), 'db', 'database.sqlite'),
+          acquire: 30000,
+          idle: 10000
+      }, 
+        // storage: path.join(process.cwd(), 'db', 'database.sqlite'), 
       },
     );
 }
