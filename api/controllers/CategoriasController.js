@@ -61,28 +61,37 @@ exports.edit = async (req, res) => {
     // Obtener los datos
     const idCategoria = req.params.idCategoria,
         nameCategoria = req.body.nameCategoria,
-        idPaisF = req.body.idPaisF;
+        isVisible = req.body.isVisible,
+        validVisible = isVisibleValid(isVisible);
+        // console.log(req.body);
     // Si existen las variables que se necesitan.
     if (idCategoria) {
         try {
             // Validar que no esten vacios los datos.
-            if (nameCategoria != '' && nameCategoria && idPaisF) {
-                const categoria = await Categoria.findOne({
-                    where: {
-                        idCategoria
-                    }
-                });
-                //Cambiar el nombre del categoria:
-                categoria.nameCategoria = nameCategoria;
-                categoria.idPaisF = idPaisF;
-                categoria.updatedAt = new Date();
-                //Metodo save de sequelize para guardar en la BDD
-                const resultado = await categoria.save();
-                if (!resultado) return next();
-                return res.status(200).json({
-                    ok: true,
-                    msg: 'Categoria Actualizada'
-                });
+            if (nameCategoria != '' && nameCategoria && isVisible) {
+                if(validVisible){
+                    const categoria = await Categoria.findOne({
+                        where: {
+                            idCategoria
+                        }
+                    });
+                    //Cambiar el nombre del categoria:
+                    categoria.nameCategoria = nameCategoria;
+                    categoria.isVisible = isVisible;
+                    categoria.updatedAt = new Date();
+                    //Metodo save de sequelize para guardar en la BDD
+                    const resultado = await categoria.save();
+                    if (!resultado) return next();
+                    return res.status(200).json({
+                        ok: true,
+                        msg: 'Categoria Actualizada'
+                    });
+                }else{
+                    return res.status(400).json({
+                        ok: false,
+                        msg: 'Bad Request: isVisible debe ser true o false'
+                    });
+                }
             }
             return res.status(400).json({
                 ok: false,
@@ -109,6 +118,16 @@ exports.edit = async (req, res) => {
             ok: false,
             msg: 'El id de la categoria es obligatorio'
         });
+    }
+}
+/*
+Funcion que comprueba si el booleano es valido. Regresa true si es valida y false si no es valida.
+*/
+function isVisibleValid(string = ''){
+    if(string == 'true' || string == 'false'){
+        return true;
+    }else{
+        return false;
     }
 }
 // ==========================================
