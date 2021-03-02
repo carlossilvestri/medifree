@@ -1,21 +1,23 @@
-const Pais = require('../models/Pais');
+const Categoria = require('../models/Categoria');
 /*
 ==========================================
-Registrar un pais: POST - /pais Body: (x-www-form-urlencoded) nameP
+Registrar un categoria: POST - /categoria Body: (x-www-form-urlencoded) nameCategoria (string), isVisible (boolean)
 ==========================================
 */
 exports.register = async (req, res) => {
     const {
         body
     } = req;
-    if (body.nameP != '' && body.nameP) {
+    // console.log(body);
+    if (body.nameCategoria != '' && body.nameCategoria && body.isVisible) {
         try {
-            const pais = await Pais.create({
-                nameP: body.nameP,
+            const categoria = await Categoria.create({
+                nameCategoria: body.nameCategoria,
+                isVisible: body.isVisible,
             });
             return res.status(200).json({
                 ok: true,
-                pais
+                categoria
             });
         } catch (err) {
             console.log(err);
@@ -26,19 +28,19 @@ exports.register = async (req, res) => {
     }
 
     return res.status(400).json({
-        msg: 'Bad Request: Ingrese un pais don\'t match'
+        msg: 'Bad Request: Ingrese una categoria'
     });
 }
 // ==========================================
-// Obtiene todos los paises: GET /pais 
+// Obtiene todas las categorias: GET /categoria 
 // ==========================================
 exports.getAll = async (req, res) => {
     // console.log(req);
     try {
-        const paises = await Pais.findAll();
+        const categorias = await Categoria.findAll();
         return res.status(200).json({
             ok: true,
-            paises
+            categorias
         });
     } catch (err) {
         console.log(err);
@@ -48,7 +50,7 @@ exports.getAll = async (req, res) => {
     }
 }
 // ==========================================
-// Editar un pais: PUT /pais/:idPais Ejm. /pais/1 idPais: Params. nameP: Body (x-www-form-urlencoded)
+// Editar un categoria: PUT /categoria/:idCategoria Ejm. /categoria/1 idCategoria: Params. nameCategoria (string), idPaisF (int) Body (x-www-form-urlencoded)
 // ==========================================
 exports.edit = async (req, res) => {
     /*
@@ -57,35 +59,45 @@ exports.edit = async (req, res) => {
     console.log(req.params);
     console.log(req.body);*/
     // Obtener los datos
-    const idPais = req.params.idPais,
-        nameP = req.body.nameP;
-    if (idPais) {
+    const idCategoria = req.params.idCategoria,
+        nameCategoria = req.body.nameCategoria,
+        idPaisF = req.body.idPaisF;
+    // Si existen las variables que se necesitan.
+    if (idCategoria) {
         try {
             // Validar que no esten vacios los datos.
-            if (nameP != '' && nameP) {
-                const pais = await Pais.findOne({
+            if (nameCategoria != '' && nameCategoria && idPaisF) {
+                const categoria = await Categoria.findOne({
                     where: {
-                        idPais
+                        idCategoria
                     }
                 });
-                //Cambiar el nombre del pais:
-                pais.nameP = nameP;
-                pais.updatedAt = new Date();
+                //Cambiar el nombre del categoria:
+                categoria.nameCategoria = nameCategoria;
+                categoria.idPaisF = idPaisF;
+                categoria.updatedAt = new Date();
                 //Metodo save de sequelize para guardar en la BDD
-                const resultado = await pais.save();
+                const resultado = await categoria.save();
                 if (!resultado) return next();
                 return res.status(200).json({
                     ok: true,
-                    msg: 'Pais Actualizado'
+                    msg: 'Categoria Actualizada'
                 });
             }
             return res.status(400).json({
                 ok: false,
-                msg: 'Bad Request: Ingrese un pais valido don\'t match'
+                msg: 'Bad Request: Ingrese una categoria valida'
             });
 
         } catch (err) {
-            console.log(err);
+            //console.log(err.original.errno);
+            if(err.original.errno == 1452){
+                // Accion Prohibida
+                return res.status(403).json({
+                    ok: false,
+                    msg: err.original.sqlMessage
+                }); 
+            }
             return res.status(500).json({
                 ok: false,
                 msg: 'Internal server error'
@@ -95,12 +107,12 @@ exports.edit = async (req, res) => {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            msg: 'El id del pais es obligatorio'
+            msg: 'El id de la categoria es obligatorio'
         });
     }
 }
 // ==========================================
-// Borrar un pais: DELETE /pais/:idPais Ejm. /pais/1 
+// Borrar un categoria: DELETE /categoria/:idCategoria Ejm. /categoria/1 
 // ==========================================
 exports.delete = async (req, res, next) => {
     /*
@@ -110,26 +122,26 @@ exports.delete = async (req, res, next) => {
     console.log(req.body);*/
     // Obtener los datos
     const {
-        idPais
+        idCategoria
     } = req.params;
-    if (idPais) {
+    if (idCategoria) {
         try {
-            //Eliminar el pais
-            const resultado = await Pais.destroy({
+            //Eliminar el categoria
+            const resultado = await Categoria.destroy({
                 where: {
-                    idPais
+                    idCategoria
                 }
             });
             if (!resultado) {
                 return res.status(400).json({
                     ok: false,
-                    msg: 'idPais no registrado'
+                    msg: 'idCategoria no registrada'
                 });
             }
 
             return res.status(200).json({
                 ok: true,
-                msg: 'Pais Eliminado'
+                msg: 'Categoria Eliminada'
             });
 
         } catch (err) {
@@ -142,7 +154,7 @@ exports.delete = async (req, res, next) => {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            msg: 'El id del pais es obligatorio'
+            msg: 'El id de la categoria es obligatorio'
         });
     }
 }

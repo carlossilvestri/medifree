@@ -1,21 +1,23 @@
-const Pais = require('../models/Pais');
+const Ciudad = require('../models/Ciudad');
 /*
 ==========================================
-Registrar un pais: POST - /pais Body: (x-www-form-urlencoded) nameP
+Registrar un ciudad: POST - /ciudad Body: (x-www-form-urlencoded) nameCiudad (string), idPaisF (int)
 ==========================================
 */
 exports.register = async (req, res) => {
     const {
         body
     } = req;
-    if (body.nameP != '' && body.nameP) {
+    console.log(body);
+    if (body.nameCiudad != '' && body.nameCiudad && body.idPaisF) {
         try {
-            const pais = await Pais.create({
-                nameP: body.nameP,
+            const ciudad = await Ciudad.create({
+                nameCiudad: body.nameCiudad,
+                idPaisF: body.idPaisF,
             });
             return res.status(200).json({
                 ok: true,
-                pais
+                ciudad
             });
         } catch (err) {
             console.log(err);
@@ -26,19 +28,19 @@ exports.register = async (req, res) => {
     }
 
     return res.status(400).json({
-        msg: 'Bad Request: Ingrese un pais don\'t match'
+        msg: 'Bad Request: Ingrese una ciudad'
     });
 }
 // ==========================================
-// Obtiene todos los paises: GET /pais 
+// Obtiene todas las ciudades: GET /ciudad 
 // ==========================================
 exports.getAll = async (req, res) => {
     // console.log(req);
     try {
-        const paises = await Pais.findAll();
+        const ciudades = await Ciudad.findAll();
         return res.status(200).json({
             ok: true,
-            paises
+            ciudades
         });
     } catch (err) {
         console.log(err);
@@ -48,7 +50,7 @@ exports.getAll = async (req, res) => {
     }
 }
 // ==========================================
-// Editar un pais: PUT /pais/:idPais Ejm. /pais/1 idPais: Params. nameP: Body (x-www-form-urlencoded)
+// Editar un ciudad: PUT /ciudad/:idCiudad Ejm. /ciudad/1 idCiudad: Params. nameCiudad (string), idPaisF (int) Body (x-www-form-urlencoded)
 // ==========================================
 exports.edit = async (req, res) => {
     /*
@@ -57,35 +59,45 @@ exports.edit = async (req, res) => {
     console.log(req.params);
     console.log(req.body);*/
     // Obtener los datos
-    const idPais = req.params.idPais,
-        nameP = req.body.nameP;
-    if (idPais) {
+    const idCiudad = req.params.idCiudad,
+        nameCiudad = req.body.nameCiudad,
+        idPaisF = req.body.idPaisF;
+    // Si existen las variables que se necesitan.
+    if (idCiudad) {
         try {
             // Validar que no esten vacios los datos.
-            if (nameP != '' && nameP) {
-                const pais = await Pais.findOne({
+            if (nameCiudad != '' && nameCiudad && idPaisF) {
+                const ciudad = await Ciudad.findOne({
                     where: {
-                        idPais
+                        idCiudad
                     }
                 });
-                //Cambiar el nombre del pais:
-                pais.nameP = nameP;
-                pais.updatedAt = new Date();
+                //Cambiar el nombre del ciudad:
+                ciudad.nameCiudad = nameCiudad;
+                ciudad.idPaisF = idPaisF;
+                ciudad.updatedAt = new Date();
                 //Metodo save de sequelize para guardar en la BDD
-                const resultado = await pais.save();
+                const resultado = await ciudad.save();
                 if (!resultado) return next();
                 return res.status(200).json({
                     ok: true,
-                    msg: 'Pais Actualizado'
+                    msg: 'Ciudad Actualizada'
                 });
             }
             return res.status(400).json({
                 ok: false,
-                msg: 'Bad Request: Ingrese un pais valido don\'t match'
+                msg: 'Bad Request: Ingrese una ciudad valida'
             });
 
         } catch (err) {
-            console.log(err);
+            //console.log(err.original.errno);
+            if(err.original.errno == 1452){
+                // Accion Prohibida
+                return res.status(403).json({
+                    ok: false,
+                    msg: err.original.sqlMessage
+                }); 
+            }
             return res.status(500).json({
                 ok: false,
                 msg: 'Internal server error'
@@ -95,12 +107,12 @@ exports.edit = async (req, res) => {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            msg: 'El id del pais es obligatorio'
+            msg: 'El id de la ciudad es obligatorio'
         });
     }
 }
 // ==========================================
-// Borrar un pais: DELETE /pais/:idPais Ejm. /pais/1 
+// Borrar un ciudad: DELETE /ciudad/:idCiudad Ejm. /ciudad/1 
 // ==========================================
 exports.delete = async (req, res, next) => {
     /*
@@ -110,26 +122,26 @@ exports.delete = async (req, res, next) => {
     console.log(req.body);*/
     // Obtener los datos
     const {
-        idPais
+        idCiudad
     } = req.params;
-    if (idPais) {
+    if (idCiudad) {
         try {
-            //Eliminar el pais
-            const resultado = await Pais.destroy({
+            //Eliminar el ciudad
+            const resultado = await Ciudad.destroy({
                 where: {
-                    idPais
+                    idCiudad
                 }
             });
             if (!resultado) {
                 return res.status(400).json({
                     ok: false,
-                    msg: 'idPais no registrado'
+                    msg: 'idCiudad no registrada'
                 });
             }
 
             return res.status(200).json({
                 ok: true,
-                msg: 'Pais Eliminado'
+                msg: 'Ciudad Eliminada'
             });
 
         } catch (err) {
@@ -142,7 +154,7 @@ exports.delete = async (req, res, next) => {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            msg: 'El id del pais es obligatorio'
+            msg: 'El id de la ciudad es obligatorio'
         });
     }
 }
