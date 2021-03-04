@@ -3,6 +3,8 @@ const router = express.Router();
 const PaisController = require("../../api/controllers/PaisController");
 const CiudadController = require("../../api/controllers/CiudadController");
 const CategoriasController = require("../../api/controllers/CategoriasController");
+const GenderController = require("../../api/controllers/GenderController");
+const UserController = require("../../api/controllers/UserController");
 
 /*const publicRoutes = {
   'POST /user': 'UserController.register',
@@ -28,7 +30,13 @@ module.exports = () => {
   router.get('/categoria', CategoriasController.getAll); // Obtener categorias.
   router.put('/categoria/:idCategoria', CategoriasController.edit); // Editar categoria por ID.
   router.delete('/categoria/:idCategoria', CategoriasController.delete); // Borrar una categoria por ID.
+  /* GENDERS (SEXO) 'Masculino' 'Femenino'*/
+  router.post('/gender', GenderController.register); // Registra nuevos genders.
+  router.get('/gender', GenderController.getAll); // Obtener genders.
+  router.put('/gender/:idGender', GenderController.edit); // Editar gender por ID.
+  router.delete('/gender/:idGender', GenderController.delete); // Borrar un gender por ID.
   /* USUARIOS */
+  router.post('/user', UserController.register); // Registra nuevos genders.
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get('/', (req, res) => {

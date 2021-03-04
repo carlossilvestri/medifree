@@ -1,7 +1,8 @@
-const Categoria = require('../models/Categoria');
+const Gender = require('../models/Gender');
+const { isBoolean } = require('./CategoriasController');
 /*
 ==========================================
-Registrar un categoria: POST - /categoria Body: (x-www-form-urlencoded) nameCategoria (string), isVisible (boolean)
+Registrar un gender: POST - /gender Body: (x-www-form-urlencoded) nameGender (string), isVisible (boolean)
 ==========================================
 */
 exports.register = async (req, res) => {
@@ -9,48 +10,65 @@ exports.register = async (req, res) => {
         body
     } = req;
     // console.log(body);
-    if (body.nameCategoria != '' && body.nameCategoria && body.isVisible) {
-        try {
-            const categoria = await Categoria.create({
-                nameCategoria: body.nameCategoria,
-                isVisible: body.isVisible,
-            });
-            return res.status(200).json({
-                ok: true,
-                categoria
-            });
-        } catch (err) {
-            console.log(err);
-            return res.status(500).json({
-                msg: 'Internal server error'
+    if (body.nameGender != '' && body.nameGender && body.isVisible) {
+        if(isBoolean(body.isVisible)){
+            try {
+                const gender = await Gender.create({
+                    nameGender: body.nameGender,
+                    isVisible: body.isVisible,
+                });
+                return res.status(200).json({
+                    ok: true,
+                    gender
+                });
+            } catch (err) {
+                // console.log(err.errors[0].type);
+                if(err.errors[0].type == 'unique violation'){
+                    return res.status(500).json({
+                        ok: false,
+                        msg: err.errors[0].message
+                    });
+                }
+                console.log(err);
+                return res.status(500).json({
+                    ok: false,
+                    msg: 'Internal server error'
+                });
+            }
+        }else{
+            return res.status(400).json({
+                ok: false,
+                msg: 'Bad Request: isVisible debe ser true o false'
             });
         }
     }
 
     return res.status(400).json({
-        msg: 'Bad Request: Ingrese una categoria'
+        ok: false,
+        msg: 'Bad Request: Ingrese un gender'
     });
 }
 // ==========================================
-// Obtiene todas las categorias: GET /categoria 
+// Obtiene todas los genders: GET /gender 
 // ==========================================
 exports.getAll = async (req, res) => {
     // console.log(req);
     try {
-        const categorias = await Categoria.findAll();
+        const genders = await Gender.findAll();
         return res.status(200).json({
             ok: true,
-            categorias
+            genders
         });
     } catch (err) {
         console.log(err);
         return res.status(500).json({
+            ok: false,
             msg: 'Internal server error'
         });
     }
 }
 // ==========================================
-// Editar un categoria: PUT /categoria/:idCategoria Ejm. /categoria/1 idCategoria: Params. nameCategoria (string), idPaisF (int) Body (x-www-form-urlencoded)
+// Editar un gender: PUT /gender/:idGender Ejm. /gender/1 idGender: Params. nameGender (string), idPaisF (int) Body (x-www-form-urlencoded)
 // ==========================================
 exports.edit = async (req, res) => {
     /*
@@ -59,32 +77,32 @@ exports.edit = async (req, res) => {
     console.log(req.params);
     console.log(req.body);*/
     // Obtener los datos
-    const idCategoria = req.params.idCategoria,
-        nameCategoria = req.body.nameCategoria,
+    const idGender = req.params.idGender,
+        nameGender = req.body.nameGender,
         isVisible = req.body.isVisible,
         validVisible = isBoolean(isVisible);
         // console.log(req.body);
-    // Si existen las variables que se necesitan.
-    if (idCategoria) {
+    // Si existen los variables que se necesitan.
+    if (idGender) {
         try {
             // Validar que no esten vacios los datos.
-            if (nameCategoria != '' && nameCategoria && isVisible) {
+            if (nameGender != '' && nameGender && isVisible) {
                 if(validVisible){
-                    const categoria = await Categoria.findOne({
+                    const gender = await Gender.findOne({
                         where: {
-                            idCategoria
+                            idGender
                         }
                     });
-                    //Cambiar el nombre del categoria:
-                    categoria.nameCategoria = nameCategoria;
-                    categoria.isVisible = isVisible;
-                    categoria.updatedAt = new Date();
+                    //Cambiar el nombre del gender:
+                    gender.nameGender = nameGender;
+                    gender.isVisible = isVisible;
+                    gender.updatedAt = new Date();
                     //Metodo save de sequelize para guardar en la BDD
-                    const resultado = await categoria.save();
+                    const resultado = await gender.save();
                     if (!resultado) return next();
                     return res.status(200).json({
                         ok: true,
-                        msg: 'Categoria Actualizada'
+                        msg: 'Gender Actualizado'
                     });
                 }else{
                     return res.status(400).json({
@@ -95,7 +113,7 @@ exports.edit = async (req, res) => {
             }
             return res.status(400).json({
                 ok: false,
-                msg: 'Bad Request: Ingrese una categoria valida'
+                msg: 'Bad Request: Ingrese una gender valida'
             });
 
         } catch (err) {
@@ -116,22 +134,12 @@ exports.edit = async (req, res) => {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            msg: 'El id de la categoria es obligatorio'
+            msg: 'El id de la gender es obligatorio'
         });
     }
 }
-/*
-Funcion que comprueba si el booleano es valido. Regresa true si es valida y false si no es valida.
-*/
-exports.isBoolean = (string = '') => {
-    if(string == 'true' || string == 'false'){
-        return true;
-    }else{
-        return false;
-    }
-}
 // ==========================================
-// Borrar un categoria: DELETE /categoria/:idCategoria Ejm. /categoria/1 
+// Borrar un gender: DELETE /gender/:idGender Ejm. /gender/1 
 // ==========================================
 exports.delete = async (req, res, next) => {
     /*
@@ -141,26 +149,26 @@ exports.delete = async (req, res, next) => {
     console.log(req.body);*/
     // Obtener los datos
     const {
-        idCategoria
+        idGender
     } = req.params;
-    if (idCategoria) {
+    if (idGender) {
         try {
-            //Eliminar el categoria
-            const resultado = await Categoria.destroy({
+            //Eliminar el gender
+            const resultado = await Gender.destroy({
                 where: {
-                    idCategoria
+                    idGender
                 }
             });
             if (!resultado) {
                 return res.status(400).json({
                     ok: false,
-                    msg: 'idCategoria no registrada'
+                    msg: 'idGender no registrado'
                 });
             }
 
             return res.status(200).json({
                 ok: true,
-                msg: 'Categoria Eliminada'
+                msg: 'Gender Eliminado'
             });
 
         } catch (err) {
@@ -173,7 +181,7 @@ exports.delete = async (req, res, next) => {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            msg: 'El id de la categoria es obligatorio'
+            msg: 'El id de la gender es obligatorio'
         });
     }
 }

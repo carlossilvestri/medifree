@@ -16,6 +16,7 @@ const Ciudad = sequelize.define('Ciudad', {
         args: true,
         msg: 'Ciudad ya registrada.'
     },
+    allowNull: false,
     notEmpty: {
         msg: 'La ciudad no puede ir vacia.'
     }

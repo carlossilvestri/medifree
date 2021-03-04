@@ -2,15 +2,15 @@ const Sequelize = require('sequelize');
 
 const sequelize = require('../../config/database');
 
-const tableName = 'categorias';
+const tableName = 'genders';
 
-const Categoria = sequelize.define('Categoria', {
-    idCategoria: {
+const Gender = sequelize.define('Gender', {
+    idGender: {
         type: Sequelize.INTEGER(11),
         primaryKey: true,
         autoIncrement: true
   },
-  nameCategoria: {
+  nameGender: {
     type: Sequelize.STRING(50),
     unique: {
         args: true,
@@ -27,4 +27,4 @@ const Categoria = sequelize.define('Categoria', {
   }
 }, { tableName });
 
-module.exports = Categoria;
+module.exports = Gender;

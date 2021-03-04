@@ -16,6 +16,7 @@ const Pais = sequelize.define('Pais', {
         args: true,
         msg: 'El pais ya registrado.'
     },
+    allowNull: false,
     notEmpty: {
         msg: 'El pais no puede ir vacio.'
     }
