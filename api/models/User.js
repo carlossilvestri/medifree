@@ -7,7 +7,7 @@ const Gender = require('./Gender');
 
 const hooks = {
   beforeCreate(user) {
-    user.passwordU = bcryptService().password(user); // eslint-disable-line no-param-reassign
+    user.password = bcryptService().password(user); // eslint-disable-line no-param-reassign
   },
 };
 
@@ -15,7 +15,7 @@ const tableName = 'users';
 /*
 Users:
 (Tabla)
-IdUser, passwordU, emailU, namesU, lastNamesU, identificationU, idCiudadF, donatorU (boolean), dateOfBirth, directionU, idGenderF, tlf1U, tlf2U.
+IdUser, password, emailU, namesU, lastNamesU, identificationU, idCiudadF, donatorU (boolean), dateOfBirth, directionU, idGenderF, tlf1U, tlf2U.
 */
 const User = sequelize.define('User', {
   idUser: {
@@ -53,10 +53,6 @@ const User = sequelize.define('User', {
     },
     allowNull: false,
   },
-  donatorU: {
-    type: Sequelize.BOOLEAN,
-    allowNull: false, //El campo no puede quedar vacio
-  },
   dateOfBirth: {
     type: Sequelize.DATE,
     allowNull: false,
@@ -78,8 +74,8 @@ const User = sequelize.define('User', {
 }, { hooks, tableName });
 
 // Llaves foraneas.
-User.belongsTo(Ciudad, {foreignKey: 'idCiudadF'});
-User.belongsTo(Gender, {foreignKey: 'idGenderF'});
+User.belongsTo(Ciudad, {as: 'ciudades', foreignKey: 'idCiudadF'});
+User.belongsTo(Gender, {as: 'sexos', foreignKey: 'idGenderF'});
 
 // eslint-disable-next-line
 User.prototype.toJSON = function () {

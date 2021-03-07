@@ -36,7 +36,7 @@ module.exports = () => {
   router.put('/gender/:idGender', GenderController.edit); // Editar gender por ID.
   router.delete('/gender/:idGender', GenderController.delete); // Borrar un gender por ID.
   /* USUARIOS */
-  router.post('/user', UserController.register); // Registra nuevos genders.
+  router.post('/user', UserController.register); // Registra nuevos usuarios.
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get('/', (req, res) => {

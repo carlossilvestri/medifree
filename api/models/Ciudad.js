@@ -21,6 +21,10 @@ const Ciudad = sequelize.define('Ciudad', {
         msg: 'La ciudad no puede ir vacia.'
     }
   },
+  isVisible: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false, //El campo no puede quedar vacio
+  },
 }, { tableName });
-Ciudad.belongsTo(Pais, {foreignKey: 'idPaisF'}); //Para colocar una llave foranea.
+Ciudad.belongsTo(Pais, {as: 'paises', foreignKey: 'idPaisF'}); //Para colocar una llave foranea.
 module.exports = Ciudad;

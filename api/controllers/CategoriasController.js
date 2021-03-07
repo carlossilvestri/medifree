@@ -124,7 +124,8 @@ exports.edit = async (req, res) => {
 Funcion que comprueba si el booleano es valido. Regresa true si es valida y false si no es valida.
 */
 exports.isBoolean = (string = '') => {
-    if(string == 'true' || string == 'false'){
+    console.log('string ', string);
+    if(string == '1' || string == '0'){
         return true;
     }else{
         return false;

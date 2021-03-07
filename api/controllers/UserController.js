@@ -13,77 +13,72 @@ exports.register = async (req, res) => {
 
   // Obtener los datos.
   const {
-    passwordU,
+    password,
     password2,
     emailU,
     namesU,
     lastNamesU,
     identificationU,
     idCiudadF,
-    donatorU,
     dateOfBirth,
     directionU,
     idGenderF,
     tlf1,
-    tlf2U
+    tlf2
   } = req.body;
   let validDonatorBoolean = false;
+  console.log('tlf1 ', tlf1);
   /*
   ===============================================
   TIPOS DE DATOS: Tabla User.
   ==============================================
-  passwordU string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer, donatorU boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
+  password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
   */
   // Validar los datos
   // Que existan los datos obligatorios.
-  if (passwordU || password2 || emailU || namesU || lastNamesU || identificationU || idCiudadF || donatorU || dateOfBirth || directionU || idGenderF || tlf1) {
-    // donatorU debe ser 'true' o 'false' para que isBoolean devuelva true.
-    validDonatorBoolean = isBoolean(donatorU);
-    // Si es valido el donatorU
-    if (validDonatorBoolean) {
+  if (password && password2 && emailU && namesU && lastNamesU && identificationU && idCiudadF && dateOfBirth && directionU && idGenderF && tlf1) {
       /*
     El usuario debe enviar la clave y la clave repetida para confirmar su clave por seguridad.
-    Clave = passwordU
+    Clave = password
     Clave repetida = password2
     */
-      if (passwordU === password2) {
+      if (password === password2) {
         try {
           let user;
           // Si el usuario ingreso un tlf adicional.
           if(tlf2){
             user = await User.create({
               emailU,
-              passwordU,
+              password,
               namesU,
               lastNamesU,
               identificationU,
               idCiudadF,
-              donatorU,
-              dateOfBirth,
-              directionU,
-              idGenderF,
-              tlf1,
-              tlf2: ''
-            });
-          }else{
-            user = await User.create({
-              emailU,
-              passwordU,
-              namesU,
-              lastNamesU,
-              identificationU,
-              idCiudadF,
-              donatorU,
               dateOfBirth,
               directionU,
               idGenderF,
               tlf1,
               tlf2
             });
+          }else{
+            user = await User.create({
+              emailU,
+              password,
+              namesU,
+              lastNamesU,
+              identificationU,
+              idCiudadF,
+              dateOfBirth,
+              directionU,
+              idGenderF,
+              tlf1,
+              tlf2: ''
+            });
           }
           // console.log('user ', user);
+          // console.log('user.dataValues.idUser ', user.dataValues.idUser );
           const token = authService().issue({
-            id: user.id
+            id: user.dataValues.idUser
           });
 
           return res.status(200).json({
@@ -92,7 +87,26 @@ exports.register = async (req, res) => {
             user
           });
         } catch (err) {
+          if(err.original){
+            if(err.original.errno == 1452 || err.original.errno == 1062){
+              // Accion Prohibida
+              return res.status(403).json({
+                  ok: false,
+                  msg: err.original.sqlMessage
+              }); 
+            }
+          }
+          if(err.errors[0]){
+            if(err.errors[0].type == 'Validation error'){
+              // Accion Prohibida
+              return res.status(403).json({
+                ok: false,
+                msg: err.errors[0].message
+            });
+            }
+          }
           console.log(err);
+          // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
           return res.status(500).json({
             ok: false,
             msg: 'Internal server error'
@@ -104,16 +118,11 @@ exports.register = async (req, res) => {
           msg: 'Bad Request: Passwords don\'t match'
         });
       }
-    } else {
-      return res.status(400).json({
-        ok: false,
-        msg: 'Bad Request: donatorU debe ser true o false'
-      });
-    }
+
   }else{
     return res.status(400).json({
       ok: false,
-      msg: 'Faltan datos por completar. (passwordU string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer, donatorU boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)'
+      msg: 'Faltan datos por completar. (password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)'
     });
   }
 };
