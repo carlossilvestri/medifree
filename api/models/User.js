@@ -4,6 +4,7 @@ const bcryptService = require('../services/bcrypt.service');
 const sequelize = require('../../config/database');
 const Ciudad = require('./Ciudad');
 const Gender = require('./Gender');
+const Pais = require('./Pais');
 
 const hooks = {
   beforeCreate(user) {
@@ -76,7 +77,6 @@ const User = sequelize.define('User', {
 // Llaves foraneas.
 User.belongsTo(Ciudad, {as: 'ciudades', foreignKey: 'idCiudadF'});
 User.belongsTo(Gender, {as: 'sexos', foreignKey: 'idGenderF'});
-
 // eslint-disable-next-line
 User.prototype.toJSON = function () {
   const values = Object.assign({}, this.get());

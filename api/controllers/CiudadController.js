@@ -58,9 +58,7 @@ exports.register = async (req, res) => {
 exports.getAll = async (req, res) => {
     // console.log(req);
     try {
-        const ciudades = await Ciudad.findAll({
-            include: 'paises'
-        });
+        const ciudades = await Ciudad.findAll({ include: { all: true }});
         return res.status(200).json({
             ok: true,
             ciudades
