@@ -5,6 +5,7 @@ const CiudadController = require("../../api/controllers/CiudadController");
 const CategoriasController = require("../../api/controllers/CategoriasController");
 const GenderController = require("../../api/controllers/GenderController");
 const UserController = require("../../api/controllers/UserController");
+const QuestionRecoveryController = require("../../api/controllers/QuestionRecoveryController");
 
 /*const publicRoutes = {
   'POST /user': 'UserController.register',
@@ -39,6 +40,13 @@ module.exports = () => {
   router.post('/user', UserController.register); // Registra nuevos usuarios.
   router.post('/login', UserController.login); // Login para el usuario.
   router.get('/user', UserController.getAll); // Obtener usuarios. (Paginados, indicando desde).
+  router.get('/user/:idUser', UserController.getUserById); // Obtener usuario por id.
+  router.put('/user/:idUser', UserController.validarToken, UserController.editUserById); // Editar usuarios (Todo excepto email).
+  /* Question Recovery */
+  router.post('/qr', UserController.validarToken, QuestionRecoveryController.register); // Registra nuevas preguntas de seguridad.
+  router.put('/qr/:idQr', UserController.validarToken, QuestionRecoveryController.editById); // Editar una pregunta de seguridad por Id
+  router.get('/qr', QuestionRecoveryController.getAll); // Obtener las preguntas de recuperacion asi como sus respuestas. (Paginados, indicando desde).
+  router.delete('/qr/:idQr', UserController.validarToken, QuestionRecoveryController.delete); // Borrar un QuestionRecovery por ID.
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get('/', (req, res) => {

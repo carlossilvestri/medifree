@@ -86,7 +86,7 @@ exports.register = async (req, res) => {
           id: user.dataValues.idUser
         });
 
-        return res.status(200).json({
+        return res.status(201).json({
           ok: true,
           token,
           user
@@ -151,14 +151,15 @@ exports.login = async (req, res) => {
           },
           //include: ['ciudades', 'sexos']
           include: [{
-            model: Ciudad,
-            as: 'ciudades',
-            include: 'paises'
-          },
-          {
-            model: Gender,
-            as: 'sexos'
-          }]
+              model: Ciudad,
+              as: 'ciudades',
+              include: 'paises'
+            },
+            {
+              model: Gender,
+              as: 'sexos'
+            }
+          ]
         });
 
       if (!user) {
@@ -241,37 +242,197 @@ Obtener Users: GET - /users Params: ?desde=0 (Devuelve un arreglo de Users limit
 ==========================================
 */
 exports.getAll = async (req, res) => {
-  const desde = req.query.desde || 0;
+  let desde = req.query.desde || 0;
   desde = Number(desde);
-  try {
-    const users = await User.findAll({
-      limit: 10,
-      offset: desde,
-      order: [['createdAt', 'DESC']],
-      include: [{
-        model: Ciudad,
-        as: 'ciudades',
-        include: 'paises'
-      },
-      {
-        model: Gender,
-        as: 'sexos'
-      }]
-    });
-    const cantidadUsuarios = users.length;
-    for(let i = 0; i < cantidadUsuarios; i++){
-      users[i].password = ":)"
+
+  // For debugging purposes
+  // console.log(' desde ', desde);
+  // return;
+  if (desde == 0 || desde > 0) {
+    try {
+      let users = await User.findAll({
+        limit: 10,
+        offset: desde,
+        order: [
+          ['createdAt', 'DESC']
+        ],
+        include: [{
+            model: Ciudad,
+            as: 'ciudades',
+            include: 'paises'
+          },
+          {
+            model: Gender,
+            as: 'sexos'
+          }
+        ]
+      });
+      const cantidadUsuarios = users.length;
+      // No mostrar el password de los usuarios.
+      for (let i = 0; i < cantidadUsuarios; i++) {
+        users[i].password = ":)"
+      }
+      // console.log('users ', users.length);
+      return res.status(200).json({
+        ok: true,
+        cantidadUsuarios,
+        users
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        ok: false,
+        msg: 'Internal server error'
+      });
     }
-    // console.log('users ', users.length);
-    return res.status(200).json({
-      cantidadUsuarios,
-      ok: true,
-      users
-    });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      msg: 'Internal server error'
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: 'El parametro desde no es válido'
     });
   }
 };
+/*
+Obtener Users: GET - /user/idUser
+*/
+exports.getUserById = async (req, res) => {
+  let idUser = req.params.idUser;
+  idUser = Number(idUser);
+  if (!idUser || idUser <= 0) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'Debe proporcionar un idUser valido.'
+    });
+  }
+  console.log('idUser ', idUser);
+  // Encontra el user
+  try {
+    let user = await User.findByPk(idUser, {
+      include: [{
+          model: Ciudad,
+          as: 'ciudades',
+          include: 'paises'
+        },
+        {
+          model: Gender,
+          as: 'sexos'
+        }
+      ]
+    });
+    // Si existe el usuario
+    if (user) {
+      user.password = ":)";
+      return res.status(200).json({
+        ok: true,
+        user
+      });
+    }
+    // No existe el usuario
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'No se encontró al usuario.'
+    });
+  } catch (error) {
+    console.log(err);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Internal server error'
+    });
+  }
+}
+/*
+==========================================
+Editar usuario por id. PUT /user/:idUser
+==========================================
+*/
+
+exports.editUserById = async (req, res) => {
+  // Debuggear
+  // console.log('req.body ', req.body);
+
+  // Obtener los datos por destructuring.
+  const {
+    password,
+    password2,
+    emailU,
+    namesU,
+    lastNamesU,
+    identificationU,
+    idCiudadF,
+    dateOfBirth,
+    directionU,
+    idGenderF,
+    tlf1,
+    tlf2
+  } = req.body;
+  // console.log('tlf1 ', tlf1);
+  /*
+  ===============================================
+  TIPOS DE DATOS: Tabla User.
+  ==============================================
+  password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
+  */
+  // Validar los datos
+  // Que existan los datos obligatorios.
+  if (namesU && lastNamesU && identificationU && idCiudadF && dateOfBirth && directionU && idGenderF && tlf1) {
+    /*
+    El usuario debe enviar la clave y la clave repetida para confirmar su clave por seguridad.
+    Clave = password
+    Clave repetida = password2
+    */
+    // Si el usuario envia su clave, verificar.
+    try {
+      let user = await User.findOne({
+        where: {
+          emailU
+        }
+      });
+      // console.log('USUARIO  ', user);
+      //Cambiar el nombre del ciudad:
+      user.namesU = namesU;
+      user.lastNamesU = lastNamesU;
+      user.identificationU = identificationU;
+      if (password && password2) {
+        if (password === password2) {
+        user.password = password;
+        user.password =  bcryptService().password(user); 
+        } else {
+          return res.status(400).json({
+            ok: false,
+            msg: 'Bad Request: Passwords don\'t match'
+          });
+        }
+      }
+      user.idCiudadF = idCiudadF;
+      user.dateOfBirth = dateOfBirth;
+      user.directionU = directionU;
+      user.idGenderF = idGenderF;
+      user.tlf1 = tlf1;
+      if (tlf2 || tlf2 === '') {
+        user.tlf2 = tlf2;
+      }
+      user.updatedAt = new Date();
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await user.save();
+      if (!resultado) return next();
+      return res.status(200).json({
+        ok: true,
+        msg: 'Usuario Actualizado',
+        user
+      });
+    } catch (err) {
+      console.log(err);
+      // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
+      return res.status(500).json({
+        ok: false,
+        msg: 'Internal server error'
+      });
+    }
+  } else {
+    return res.status(400).json({
+      ok: false,
+      msg: 'Faltan datos por completar. (password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)'
+    });
+  }
+}
