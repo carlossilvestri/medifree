@@ -1,3 +1,4 @@
+const { lePerteneceElToken } = require('../functions/function');
 const Ciudad = require('../models/Ciudad');
 const Gender = require('../models/Gender');
 const User = require('../models/User');
@@ -83,7 +84,7 @@ exports.register = async (req, res) => {
         // console.log('user ', user);
         // console.log('user.dataValues.idUser ', user.dataValues.idUser );
         const token = authService().issue({
-          id: user.dataValues.idUser
+          user
         });
 
         return res.status(201).json({
@@ -170,7 +171,7 @@ exports.login = async (req, res) => {
 
       if (bcryptService().comparePassword(password, user.password)) {
         const token = authService().issue({
-          id: user.id
+          user
         });
         // No mostrar el hash del password
         user.password = ":)";
@@ -350,7 +351,17 @@ Editar usuario por id. PUT /user/:idUser
 exports.editUserById = async (req, res) => {
   // Debuggear
   // console.log('req.body ', req.body);
-
+  const idUser = Number(req.params.idUser);
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  /* Preguntar si el idQR le pertenece al usuario del token */
+  let lePertenecee = await lePerteneceElToken(user, idUser, User);
+  if (!lePertenecee) {
+    // Accion prohibida
+    return res.status(403).json({
+      ok: false,
+      msg: "No le pertenece esa pregunta de seguridad",
+    });
+  }
   // Obtener los datos por destructuring.
   const {
     password,
@@ -383,11 +394,7 @@ exports.editUserById = async (req, res) => {
     */
     // Si el usuario envia su clave, verificar.
     try {
-      let user = await User.findOne({
-        where: {
-          emailU
-        }
-      });
+      let user = await User.findByPk(idUser);
       // console.log('USUARIO  ', user);
       //Cambiar el nombre del ciudad:
       user.namesU = namesU;

@@ -1,27 +1,34 @@
 /*const Gender = require("../models/Gender");
 const Ciudad = require("../models/Gender");*/
 const { lePerteneceElToken } = require("../functions/function");
-const QuestionRecovery = require("../models/QuestionRecovery");
+const Categoria = require("../models/Categoria");
+const Medicamento = require("../models/Medicamento");
 const User = require("../models/User");
 /*
 ==========================================
-Registrar un qr: POST - /qr Body: (x-www-form-urlencoded) q1, q2, r1, r2, idUsuarioF
+Registrar un medicine: POST - /medicine Body: (x-www-form-urlencoded) nameM, descriptionM, inventaryM, idCategoriaF, idUsuarioF
 ==========================================
 */
 exports.register = async (req, res) => {
-  const { q1, q2, r1, r2, idUsuarioF } = req.body;
-  if (q1 != "" && q2 != "" && r1 != "" && r2 != "") {
+  const { nameM, descriptionM, inventaryM, idCategoriaF } = req.body;
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  if (
+    nameM != "" &&
+    descriptionM != "" &&
+    inventaryM != "" &&
+    idCategoriaF != ""
+  ) {
     try {
-      const qr = await QuestionRecovery.create({
-        q1,
-        q2,
-        r1,
-        r2,
-        idUsuarioF,
+      const medicine = await Medicamento.create({
+        nameM,
+        descriptionM,
+        inventaryM,
+        idCategoriaF,
+        idUsuarioF: user.idUser,
       });
       return res.status(200).json({
         ok: true,
-        qr,
+        medicine,
       });
     } catch (err) {
       console.log(err);
@@ -32,11 +39,12 @@ exports.register = async (req, res) => {
   }
 
   return res.status(400).json({
-    msg: "Bad Request: Verifique los datos q1, q2, r1 y r2.",
+    msg:
+      "Bad Request: Verifique los datos nameM, descriptionM, inventaryM y idCategoriaF.",
   });
 };
 // ==========================================
-// Obtiene todos los qres: GET /qr
+// Obtiene todos los medicamentos en general: GET /medicine ?desde=0
 // ==========================================
 exports.getAll = async (req, res) => {
   let desde = req.query.desde || 0;
@@ -44,21 +52,25 @@ exports.getAll = async (req, res) => {
   // console.log(req);
   if (desde == 0 || desde > 0) {
     try {
-      const qres = await QuestionRecovery.findAll({
+      const medicines = await Medicamento.findAll({
         limit: 10,
         offset: desde,
         order: [["createdAt", "DESC"]],
         include: [
           {
+            model: Categoria,
+            as: "categoria",
+          },
+          {
             model: User,
-            as: "usuario",
+            as: "creador",
             include: ["ciudades", "sexos"],
           },
         ],
       });
       return res.status(200).json({
         ok: true,
-        qres,
+        medicines,
       });
     } catch (err) {
       console.log(err);
@@ -75,38 +87,21 @@ exports.getAll = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los qres: GET /qr/:idQr
+// Obtiene todos los medicines: GET /medicine/:idMedicine == NO TOKEN REQUIRED ==
 // ==========================================
-exports.getQRById = async (req, res) => {
+exports.getMedicineById = async (req, res) => {
   // Obtener los datos por destructuring.
-  const idQr = Number(req.params.idQr);
-  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  const idMedicine = Number(req.params.idMedicine);
   // console.log(user);
   // console.log(req);
-  if (idQr && user) {
+  if (idMedicine) {
     try {
-      /* Preguntar si el idQR le pertenece al usuario del token */
-      let lePertenecee = await lePerteneceElToken(user, idQr, QuestionRecovery);
-      if (!lePertenecee) {
-        // Accion prohibida
-        return res.status(403).json({
-          ok: false,
-          msg: "Acción prohibida",
-        });
-      }
-      /*const resultado = await QuestionRecovery.findOne({
-        where: {
-          idUsuarioF: user.idUser,
-        },
-      });
-      if (!resultado) {
-        return res.status(400).json({
-          ok: false,
-          msg: "Ese idQr no le pertenece",
-        });
-      }*/
-      const qres = await QuestionRecovery.findByPk(idQr, {
+      const medicines = await Medicamento.findByPk(idMedicine, {
         include: [
+          {
+            model: Categoria,
+            as: "categoria",
+          },
           {
             model: User,
             as: "usuario",
@@ -114,15 +109,15 @@ exports.getQRById = async (req, res) => {
           },
         ],
       });
-      if (!qres) {
+      if (!medicines) {
         return res.status(400).json({
           ok: false,
-          msg: "No hay resultados de preguntas de seguridad para ese id",
+          msg: "No hay resultados de medicamentos para ese id",
         });
       }
       return res.status(200).json({
         ok: true,
-        qres,
+        medicines,
       });
     } catch (err) {
       console.log(err);
@@ -134,13 +129,13 @@ exports.getQRById = async (req, res) => {
     // 400 (Bad Request)
     return res.status(400).json({
       ok: false,
-      msg: "Verificar el idQr y el token",
+      msg: "Verificar el idMedicine y el token",
     });
   }
 };
 /*
 ==========================================
-Editar qres por id. PUT /qr/:idQr  Body (x-www-form-urlencoded) q1, q2, r1, r2, token
+Editar medicines por id. PUT /medicine/:idMedicine  Body (x-www-form-urlencoded) nameM, descriptionM, inventaryM, idCategoriaF, token
 ==========================================
 */
 
@@ -149,44 +144,48 @@ exports.editById = async (req, res) => {
   // console.log('req.body ', req.body);
 
   // Obtener los datos por destructuring.
-  const idQr = req.params.idQr;
-  const { q1, q2, r1, r2 } = req.body;
+  const idMedicine = req.params.idMedicine;
+  const { nameM, descriptionM, inventaryM, idCategoriaF } = req.body;
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
-  if (q1 && q2 && r1 && r2 && user) {
+  if (nameM && descriptionM && inventaryM && idCategoriaF && user) {
     try {
       /* Preguntar si el idQR le pertenece al usuario del token */
-      let lePertenecee = await lePerteneceElToken(user, idQr, QuestionRecovery);
+      let lePertenecee = await lePerteneceElToken(
+        user,
+        idMedicine,
+        Medicamento
+      );
       if (!lePertenecee) {
         // Accion prohibida
         return res.status(403).json({
           ok: false,
-          msg: "No le pertenece esa pregunta de seguridad",
+          msg: "No le pertenece ese medicamento",
         });
       }
-      /* Buscar la pregunta de seguridad. */
-      let qr = await QuestionRecovery.findByPk(idQr);
-      // console.log('preguntas de seguridad  ', qr);
+      /* Buscar la medicamento. */
+      let medicine = await Medicamento.findByPk(idMedicine);
+      // console.log('medicamentos  ', medicine);
       /* Preguntar si el idQR le pertenece al usuario del token */
-      /*if (qr.idUsuarioF != user.idUser) {
+      /*if (medicine.idUsuarioF != user.idUser) {
         return res.status(400).json({
           ok: false,
-          msg: "Ese idQr no le pertenece",
+          msg: "Ese idMedicine no le pertenece",
         });
       }*/
-      //Cambiar las preguntas de seguridad.
-      qr.q1 = q1;
-      qr.q2 = q2;
-      qr.r1 = r1;
-      qr.r2 = r2;
+      //Cambiar las medicamentos.
+      medicine.nameM = nameM;
+      medicine.descriptionM = descriptionM;
+      medicine.inventaryM = inventaryM;
+      medicine.idCategoriaF = idCategoriaF;
 
-      qr.updatedAt = new Date();
+      medicine.updatedAt = new Date();
       //Metodo save de sequelize para guardar en la BDD
-      const resultado = await qr.save();
+      const resultado = await medicine.save();
       if (!resultado) return next();
       return res.status(200).json({
         ok: true,
-        msg: "Pregunta de Seguridad Actualizada",
-        qr,
+        msg: "Medicamento Actualizado",
+        medicine,
       });
     } catch (err) {
       console.log(err);
@@ -204,7 +203,7 @@ exports.editById = async (req, res) => {
   }
 };
 // ==========================================
-// Borrar un qr: DELETE /qr/:idQr Ejm. /qr/1
+// Borrar un medicine: DELETE /medicine/:idMedicine Ejm. /medicine/1
 // ==========================================
 exports.delete = async (req, res, next) => {
   /*
@@ -213,20 +212,20 @@ exports.delete = async (req, res, next) => {
     console.log(req.params);
     console.log(req.body);*/
   // Obtener los datos
-  const { idQr } = req.params;
+  const { idMedicine } = req.params;
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
-  if (idQr && user) {
+  if (idMedicine && user) {
     try {
-      //Eliminar el qr
-      const resultado = await QuestionRecovery.destroy({
+      //Eliminar el medicine
+      const resultado = await Medicamento.destroy({
         where: {
-          idQr,
+          idMedicine,
         },
       });
       if (!resultado) {
         return res.status(400).json({
           ok: false,
-          msg: "idQr no registrado",
+          msg: "idMedicine no registrado",
         });
       }
 
@@ -244,9 +243,7 @@ exports.delete = async (req, res, next) => {
     // Accion prohibida. (Error)
     return res.status(403).json({
       ok: false,
-      msg: "El id del qr es obligatorio",
+      msg: "El id del medicine es obligatorio",
     });
   }
 };
-
-

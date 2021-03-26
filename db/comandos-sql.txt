@@ -1,0 +1,25 @@
+/* Paises */
+INSERT INTO `paises` (`idPais`, `nameP`, `createdAt`, `updatedAt`) VALUES (NULL, 'Venezuela', '2021-03-25 20:13:54.000000', '2021-03-25 20:13:54.000000');
+
+/* Ciudades */
+INSERT INTO `ciudades` (`idCiudad`, `nameCiudad`, `isVisible`, `createdAt`, `updatedAt`, `idPaisF`) VALUES (NULL, 'Maracaibo', '1', '2021-03-25 20:15:22.000000', '2021-03-25 20:15:22.000000', '1');
+INSERT INTO `ciudades` (`idCiudad`, `nameCiudad`, `isVisible`, `createdAt`, `updatedAt`, `idPaisF`) VALUES (NULL, 'Caracas', '1', '2021-03-25 20:16:10.000000', '2021-03-25 20:16:10.000000', '1');
+
+/* Genders */
+INSERT INTO `genders` (`idGender`, `nameGender`, `isVisible`, `createdAt`, `updatedAt`) VALUES (NULL, 'Masculino', '1', '2021-03-25 20:16:37.000000', '2021-03-25 20:16:37.000000');
+INSERT INTO `genders` (`idGender`, `nameGender`, `isVisible`, `createdAt`, `updatedAt`) VALUES (NULL, 'Femenino', '1', '2021-03-25 20:16:59.000000', '2021-03-25 20:16:59.000000');
+
+/* Categorias */
+INSERT INTO `categorias` (`idCategoria`, `nameCategoria`, `isVisible`, `createdAt`, `updatedAt`) VALUES (NULL, 'Vitaminas', '1', '2021-03-26 02:30:55.000000', '2021-03-26 02:30:55.000000'), (NULL, 'Proteínas', '1', '2021-03-26 02:30:55.000000', '2021-03-26 02:30:55.000000');
+
+/* Todo */
+INSERT INTO `paises` (`idPais`, `nameP`, `createdAt`, `updatedAt`) VALUES (NULL, 'Venezuela', '2021-03-25 20:13:54.000000', '2021-03-25 20:13:54.000000');
+INSERT INTO `ciudades` (`idCiudad`, `nameCiudad`, `isVisible`, `createdAt`, `updatedAt`, `idPaisF`) VALUES (NULL, 'Maracaibo', '1', '2021-03-25 20:15:22.000000', '2021-03-25 20:15:22.000000', '1');
+INSERT INTO `ciudades` (`idCiudad`, `nameCiudad`, `isVisible`, `createdAt`, `updatedAt`, `idPaisF`) VALUES (NULL, 'Caracas', '1', '2021-03-25 20:16:10.000000', '2021-03-25 20:16:10.000000', '1');
+INSERT INTO `genders` (`idGender`, `nameGender`, `isVisible`, `createdAt`, `updatedAt`) VALUES (NULL, 'Masculino', '1', '2021-03-25 20:16:37.000000', '2021-03-25 20:16:37.000000');
+INSERT INTO `genders` (`idGender`, `nameGender`, `isVisible`, `createdAt`, `updatedAt`) VALUES (NULL, 'Femenino', '1', '2021-03-25 20:16:59.000000', '2021-03-25 20:16:59.000000');
+INSERT INTO `categorias` (`idCategoria`, `nameCategoria`, `isVisible`, `createdAt`, `updatedAt`) VALUES (NULL, 'Vitaminas', '1', '2021-03-26 02:30:55.000000', '2021-03-26 02:30:55.000000'), (NULL, 'Proteínas', '1', '2021-03-26 02:30:55.000000', '2021-03-26 02:30:55.000000');
+
+
+/* Ingresar a PHPMYADMIN */
+http://localhost/phpmyadmin/
