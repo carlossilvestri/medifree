@@ -7,6 +7,7 @@ const GenderController = require("../../api/controllers/GenderController");
 const UserController = require("../../api/controllers/UserController");
 const QuestionRecoveryController = require("../../api/controllers/QuestionRecoveryController");
 const MedicamentosController = require("../../api/controllers/MedicamentosController");
+const PeticionDonacionController = require("../../api/controllers/PeticionDonacionController");
 //Middleware para proteger las rutas.
 const auth = require("../../api/middlewares/auth");
 /*const publicRoutes = {
@@ -57,6 +58,10 @@ module.exports = () => {
   router.get("/medicine/:idMedicine", MedicamentosController.getMedicineById); // Obtener los medicamentos por su id
   router.get("/medicine-by-user-id", auth, MedicamentosController.getMedicineByUserId); // Obtener los medicamentos del usuario del token.
   router.delete("/medicine/:idMedicine", auth, MedicamentosController.delete); // Borrar un QuestionRecovery por ID.
+  /* Peticion Donacion */
+  router.post("/peticion-donacion", auth, PeticionDonacionController.register); // Registra una peticion de donacion.
+  router.get("/peticion-donacion", PeticionDonacionController.getAll); // Ver todas las peticiones de donaciones con diciendo ?desde y limite de 10.
+  router.post("/peticion-donacion", auth, PeticionDonacionController.editById); // Registra una peticion de donacion
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get("/", (req, res) => {
