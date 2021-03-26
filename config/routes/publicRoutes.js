@@ -53,8 +53,9 @@ module.exports = () => {
   /* MEDICINES */
   router.post("/medicine", auth, MedicamentosController.register); // Registra un medicamento.
   router.put("/medicine/:idMedicine", auth, MedicamentosController.editById); // Editar un medicamento por Id
-  router.get("/medicine", MedicamentosController.getAll); // Obtener las medicamentos de recuperacion asi como sus respuestas. (Paginados, indicando desde).
-  router.get("/medicine/:idMedicine", auth, MedicamentosController.getMedicineById); // Obtener la medicamentos de recuperacion por id
+  router.get("/medicine", MedicamentosController.getAll); // Obtener todos los medicamentos (Paginados, indicando desde).
+  router.get("/medicine/:idMedicine", MedicamentosController.getMedicineById); // Obtener los medicamentos por su id
+  router.get("/medicine-by-user-id", auth, MedicamentosController.getMedicineByUserId); // Obtener los medicamentos del usuario del token.
   router.delete("/medicine/:idMedicine", auth, MedicamentosController.delete); // Borrar un QuestionRecovery por ID.
   // TODO create users CRUD.
   /* PRUEBAS */

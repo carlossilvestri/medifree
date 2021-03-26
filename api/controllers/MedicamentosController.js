@@ -87,6 +87,70 @@ exports.getAll = async (req, res) => {
   }
 };
 // ==========================================
+// Obtiene todos los medicines: GET /medicine/:idMedicine == TOKEN REQUIRED ==
+// ==========================================
+exports.getMedicineByUserId = async (req, res) => {
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+  // console.log(user);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (user) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            idUsuarioF: user.idUser
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              as: "categoria",
+            },
+            {
+              model: User,
+              as: "creador",
+              include: ["ciudades", "sexos"],
+            },
+          ],
+        });
+        if (!medicines) {
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay resultados de medicamentos para ese id",
+          });
+        }
+        const cantidadMedicinas = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          cantidadMedicinas,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Verificar el token",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
 // Obtiene todos los medicines: GET /medicine/:idMedicine == NO TOKEN REQUIRED ==
 // ==========================================
 exports.getMedicineById = async (req, res) => {
@@ -104,7 +168,7 @@ exports.getMedicineById = async (req, res) => {
           },
           {
             model: User,
-            as: "usuario",
+            as: "creador",
             include: ["ciudades", "sexos"],
           },
         ],
@@ -134,6 +198,7 @@ exports.getMedicineById = async (req, res) => {
   }
 };
 /*
+== TOKEN REQUIRED ==
 ==========================================
 Editar medicines por id. PUT /medicine/:idMedicine  Body (x-www-form-urlencoded) nameM, descriptionM, inventaryM, idCategoriaF, token
 ==========================================
@@ -216,6 +281,19 @@ exports.delete = async (req, res, next) => {
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
   if (idMedicine && user) {
     try {
+      /* Preguntar si el idQR le pertenece al usuario del token */
+      let lePertenecee = await lePerteneceElToken(
+        user,
+        idMedicine,
+        Medicamento
+      );
+      if (!lePertenecee) {
+        // Accion prohibida
+        return res.status(403).json({
+          ok: false,
+          msg: "No le pertenece ese medicamento",
+        });
+      }
       //Eliminar el medicine
       const resultado = await Medicamento.destroy({
         where: {
@@ -231,7 +309,7 @@ exports.delete = async (req, res, next) => {
 
       return res.status(200).json({
         ok: true,
-        msg: "Question Recovery Eliminado",
+        msg: "Medicamento Eliminado",
       });
     } catch (err) {
       console.log(err);
