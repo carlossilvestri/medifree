@@ -1,16 +1,14 @@
 const Sequelize = require("sequelize");
 
 const sequelize = require("../../config/database");
-const Medicamento = require("./Medicamento");
-const User = require("./User");
+const PeticionDonacion = require("./PeticionDonacion");
 
-const tableName = "medicamentos";
+const tableName = "donanteseleccionado";
 /*
 DonanteSeleccionados:
 (Tabla)
 idDonanteSeleccionado
-idUserF
-idMedicineF
+idPDonacionF
 
 */
 const DonanteSeleccionado = sequelize.define(
@@ -24,9 +22,8 @@ const DonanteSeleccionado = sequelize.define(
   },
   { tableName }
 );
-
+ 
 // Llaves foraneas.
-DonanteSeleccionado.belongsTo(Medicamento, { as: "medicamento", foreignKey: "idMedicineF" });
-DonanteSeleccionado.belongsTo(User, { as: "donanteSeleccionado", foreignKey: "idUsuarioF" });
+DonanteSeleccionado.belongsTo(PeticionDonacion, { as: "peticionDonacion", foreignKey: "idPDonacionF" });
 
 module.exports = DonanteSeleccionado;

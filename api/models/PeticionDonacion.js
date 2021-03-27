@@ -4,7 +4,7 @@ const sequelize = require("../../config/database");
 const Medicamento = require("./Medicamento");
 const User = require("./User");
 
-const tableName = "medicamentos";
+const tableName = "peticionDonacion";
 /*
 PeticionDonacions:
 (Tabla)
@@ -22,10 +22,6 @@ const PeticionDonacion = sequelize.define(
     msjDonacion: {
       type: Sequelize.TEXT,
       allowNull: false,
-    },
-    seleccionado: {
-        type: Sequelize.BOOLEAN,
-        default: false
     }
   },
   { tableName }

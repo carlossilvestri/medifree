@@ -68,8 +68,18 @@ exports.getAll = async (req, res) => {
           },
         ],
       });
+      if (!medicines) {
+        // 400 (Bad Request)
+        return res.status(400).json({
+          ok: false,
+          msg: "No hay medicamentos",
+        });
+      }
+      const cantidadMedicamentos = medicines.length;
       return res.status(200).json({
         ok: true,
+        desde,
+        cantidadMedicamentos,
         medicines,
       });
     } catch (err) {
@@ -102,7 +112,7 @@ exports.getMedicineByUserId = async (req, res) => {
           limit: 10,
           offset: desde,
           where: {
-            idUsuarioF: user.idUser
+            idUsuarioF: user.idUser,
           },
           order: [["createdAt", "DESC"]],
           include: [
@@ -123,10 +133,11 @@ exports.getMedicineByUserId = async (req, res) => {
             msg: "No hay resultados de medicamentos para ese id",
           });
         }
-        const cantidadMedicinas = medicines.length;
+        const cantidadMedicamentos = medicines.length;
         return res.status(200).json({
           ok: true,
-          cantidadMedicinas,
+          desde,
+          cantidadMedicamentos,
           medicines,
         });
       } catch (err) {
