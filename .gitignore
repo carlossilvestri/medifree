@@ -66,4 +66,4 @@ variables.env
 # sqlite database
 db/database.sqlite
 
-db/comandos-sql.txt
+comandos-sql.txt
