@@ -88,7 +88,7 @@ const dbService = (environment, migrate) => {
   const start = async () => {
     switch (environment) {
       case 'development':
-        // await startDev();
+        await startDev();
         break;
       case 'staging':
         await startStage();

@@ -4,9 +4,9 @@
   "author": "Carlos Silvestri>",
   "license": "MIT",
   "scripts": {
-    "prestart": "npm run drop-sqlite-db || true",
-    "start": "npm run nodemon",
-    "poststart": "npm run create-sqlite-db",
+    "prestart": "",
+    "start": "cross-env NODE_ENV=production node ./api/api.js",
+    "poststart": "",
     "dev": "cross-env NODE_ENV=development node ./api/api.js",
     "nodemon": "nodemon --exec npm run dev",
     "create-sqlite-db": "shx touch ./db/database.sqlite",

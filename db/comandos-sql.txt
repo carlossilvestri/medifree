@@ -23,3 +23,24 @@ INSERT INTO `categorias` (`idCategoria`, `nameCategoria`, `isVisible`, `createdA
 
 /* Ingresar a PHPMYADMIN */
 http://localhost/phpmyadmin/
+
+
+DB_NAME=u268832824_cocina
+DB_USER=u268832824_carlossilvestr
+DB_PASS=Kar2La30%
+BD_HOST=sql132.main-hosting.eu
+BD_PORT=2017
+SEED_JSON_WEB_TOKEN=@este-es-un-seed-dificil
+DB_HOST=sql132.main-hosting.eu
+CLOUDINARY_CLOUD_NAME=silvestric
+CLOUDINARY_API_KEY=329264518852693
+CLOUDINARY_API_SECRET=hNSkjXfXirVsB5loSC__Uc-n_LY
+
+
+DB_NAME=medifree
+DB_USER=root
+DB_PASS=
+BD_HOST=localhost
+BD_PORT=2017
+SEED_JSON_WEB_TOKEN=@este-es-un-seed-dificil
+DB_HOST=localhost
