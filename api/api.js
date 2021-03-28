@@ -59,7 +59,7 @@ app.use(bodyParser.json());
 // app.use('/private', mappedAuthRoutes);
 app.use('/', routes());
 
-app.use(cors(corsOption));
+// app.use(cors(corsOption));
 
 //Rutas de la app.
 app.use('/', routes());
