@@ -68,7 +68,7 @@ const host = process.env.HOST || '0.0.0.0';
 const port = process.env.PORT || 5000;
 
 
-server.listen(port, host, () => {
+app.listen(port, host, () => {
   if (environment !== 'production' &&
     environment !== 'development' &&
     environment !== 'testing'
