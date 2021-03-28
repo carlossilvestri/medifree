@@ -59,7 +59,16 @@ app.use(bodyParser.json());
 // app.use('/private', mappedAuthRoutes);
 app.use('/', routes());
 
-server.listen(config.port, () => {
+app.use(cors(corsOption));
+
+//Rutas de la app.
+app.use('/', routes());
+
+const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || 5000;
+
+
+server.listen(port, host, () => {
   if (environment !== 'production' &&
     environment !== 'development' &&
     environment !== 'testing'
