@@ -72,8 +72,8 @@ app.use('/', routes());
 //Rutas de la app.
 app.use('/', routes());
 
-const host = process.env.HOST || process.env.BD_HOST || '0.0.0.0';
-const port = process.env.PORT || process.env.BD_PORT || 2017;
+const host = process.env.HOST || 'localhost';
+const port = process.env.PORT || 2017;
 
 
 app.listen(port, host, () => {
