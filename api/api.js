@@ -9,6 +9,7 @@ const http = require('http');
 const cors = require('cors');
 require('dotenv').config({ path: 'variables.env' });
 const routes = require('../config/routes/publicRoutes');
+const fileUpload = require("express-fileupload");
 /**
  * server configuration
  */
@@ -50,7 +51,14 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(bodyParser.json());
-
+/* Limites del size de los archivos. */
+// 2097152 bytes = 2mb
+app.use(fileUpload({
+  limits: {
+      fileSize: 2097152
+  },
+  useTempFiles : true
+}));
 // secure your private routes with jwt authentication middleware
 // app.all('/private/*', (req, res, next) => auth(req, res, next));
 
@@ -64,8 +72,8 @@ app.use('/', routes());
 //Rutas de la app.
 app.use('/', routes());
 
-const host = process.env.HOST || '0.0.0.0';
-const port = process.env.PORT || 5000;
+const host = process.env.HOST || process.env.BD_HOST || '0.0.0.0';
+const port = process.env.PORT || process.env.BD_PORT || 2017;
 
 
 app.listen(port, host, () => {

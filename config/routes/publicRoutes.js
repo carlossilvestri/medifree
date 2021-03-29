@@ -9,6 +9,7 @@ const QuestionRecoveryController = require("../../api/controllers/QuestionRecove
 const MedicamentosController = require("../../api/controllers/MedicamentosController");
 const PeticionDonacionController = require("../../api/controllers/PeticionDonacionController");
 const DonanteSeleccionadoController = require("../../api/controllers/DonanteSeleccionadoController");
+const uploadsController = require("../../api/controllers/uploadsController");
 //Middleware para proteger las rutas.
 const auth = require("../../api/middlewares/auth");
 /*const publicRoutes = {
@@ -80,6 +81,10 @@ module.exports = () => {
   router.get("/donante-seleccionado", DonanteSeleccionadoController.getAll); // Obtener todos los donantes seleccionados ?desde . No es necesario el token .
   router.get("/donante-seleccionado/:idDonanteSeleccionado", DonanteSeleccionadoController.getById); // Obtener todos los donantes seleccionados por su id. No es necesario el token .
   router.delete("/donante-seleccionado/:idDonanteSeleccionado", auth, DonanteSeleccionadoController.delete); // Registra una peticion de donacion.
+
+  /* SUBIDA DE ARCHIVOS */
+  router.put("/upload/:idMedicine", auth, uploadsController.uploadImgToServer); // Editar/Agregar una img
+  router.put("/upload/cloudinary/:idMedicine", auth, uploadsController.subirACloudinary); // Editar/Agregar una img
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get("/", (req, res) => {
