@@ -72,7 +72,8 @@ app.use('/', routes());
 //Rutas de la app.
 app.use('/', routes());
 
-const host = process.env.HOST || 'localhost';
+
+const host = process.env.HOST ||  '0.0.0.0';
 const port = process.env.PORT || 2017;
 
 
@@ -84,5 +85,6 @@ app.listen(port, host, () => {
     console.error(`NODE_ENV is set to ${environment}, but only production and development are valid.`);
     // process.exit(1);
   }
+console.log(`El servidor funciona en el puerto ${port} y en el host ${host} `);
   return DB;
 });
