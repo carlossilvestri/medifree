@@ -2,10 +2,12 @@ require("dotenv").config({
   path: "variables.env",
 });
 const fs = require("fs");
+const path = require("path");
 var cloudinary = require("cloudinary").v2;
 // const User = require("../models/User");
 // const Categoria = require("../models/Categoria");
 const Medicamento = require("../models/Medicamento");
+const User = require("../models/User");
 const { lePerteneceElToken } = require("../functions/function");
 
 cloudinary.config({
@@ -31,13 +33,24 @@ exports.eliminarCloudinary = async (publicid) => {
 Cambia/Agrega una imagen a un determinado medico, usuario y hospital.
 Params: token del creador del medicamento. (Obligatorio)
 Body: (form-data) imagen ('png', 'jpg', 'gif', 'jpeg')
-PUT - Cambia/Agrega /upload/:idMedicine
+PUT - Cambia/Agrega /upload/:id
 */
 exports.subirACloudinary = (req, res, next) => {
-    // Obtener los datos
-  const idMedicine = Number(req.params.idMedicine);
+  // Obtener los datos
+  const id = Number(req.params.id);
+  const tipo = req.params.tipo; // medicines or users
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
-  console.log("req.files ", req.files);
+  // console.log("req.files ", req.files);
+   // Validar que el tipo sea medicines or users
+   if (tipo == "medicines" || tipo == "users") {
+    // Todo bien
+  } else {
+    // El usuario no envio un tipo valido.
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El tipo debe ser medicines o users",
+    });
+  }
   // Si no hay foto
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).json({
@@ -64,29 +77,61 @@ exports.subirACloudinary = (req, res, next) => {
     cloudinary.uploader.upload(
       imagen,
       {
-        folder: "medicamentos/",
+        folder: tipo == "medicines" ? "medicamentos/" : tipo == "users" ? "users/" : null,
         unique_filename: true,
         resource_type: "image",
       },
-      function (error, result) {
+      async function (error, result) {
         // console.log(result, error);
         if (error) {
-            console.log(error);
+          console.log(error);
           // Hubo un error al subir
           return res.status(400).json({
             ok: false,
-            error,
+            error, 
           });
         }
         // El archivo se subio con exito.
         // Guardar en la base de datos.
-        const { asset_id, url} = result;
+        const { asset_id, url } = result;
         const objImg = {
-            asset_id,
-            url
-        }
+          asset_id,
+          url,
+        };
         const imgString = JSON.stringify(objImg);
-        guardarEnBaseDeDatos(idMedicine, imgString, res, user);
+        switch (tipo) {
+          case "medicines":
+            /* Preguntar si el idQR le pertenece al usuario del token */
+            let lePertenecee = await lePerteneceElToken(
+              user,
+              id,
+              Medicamento 
+            ); 
+            if (!lePertenecee) {
+              // Accion prohibida
+              return res.status(403).json({
+                ok: false,
+                msg: "No le pertenece ese medicamento",
+              });
+            }
+            guardarEnBDMedicines(id, imgString, res, user);
+            break;
+          case "users":
+            /* Preguntar si el id le pertenece al usuario del token */
+            if (user.idUser == id) {
+              // Todo bien
+              guardarEnBDUsers(id, imgString, res, user);
+            } else {
+              // Accion prohibida
+              return res.status(403).json({
+                ok: false,
+                msg: "No le pertenece ese usuario",
+              });
+            }
+            break;
+          default:
+            break;
+        }
         /*res.send({
           success: true,
           result,
@@ -116,13 +161,25 @@ exports.subirACloudinary = (req, res, next) => {
 Cambia/Agrega una imagen a un determinado medico, usuario y hospital.
 Params: token del creador del medicamento. (Obligatorio)
 Body: (form-data) imagen ('png', 'jpg', 'gif', 'jpeg')
-PUT - Cambia/Agrega /upload/:idMedicine
+PUT - Cambia/Agrega /upload/:tipo/:id
 */
 exports.uploadImgToServer = async (req, res, next) => {
   // Obtener los datos
-  const idMedicine = Number(req.params.idMedicine);
-  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  const id = Number(req.params.id);
+  const tipo = req.params.tipo; // medicines or users
+  let user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  console.log("user ", user);
   // console.log("req.files ", req.files);
+  // Validar que el tipo sea medicines or users
+  if (tipo == "medicines" || tipo == "users") {
+    // Todo bien
+  } else {
+    // El usuario no envio un tipo valido.
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El tipo debe ser medicines o users",
+    });
+  }
   // Si no hay foto
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).json({
@@ -160,35 +217,18 @@ exports.uploadImgToServer = async (req, res, next) => {
       },
     });
   }
-  // Nombre de archivo personalizado por idUsuario-numeroAlAzar.extension
-  const nombreArchivo = `${idMedicine}-${new Date().getMilliseconds()}.${extensionArchivo}`;
-  console.log("nombreArchivo ", nombreArchivo);
-  // Mover el archivo del temporal a un path.
-  const path = `./uploads/medicines/${nombreArchivo}`;
-  archivo.mv(path, (err) => {
-    if (err) {
-      return res.status(500).json({
-        ok: false,
-        mensaje: "Error al mover el archivo.",
-        errors: err,
-      });
-    }
-  });
-  guardarEnBaseDeDatos(idMedicine, nombreArchivo, res, user);
-};
+  // Nombre de archivo personalizado por id-numeroAlAzar.extension
+  const nombreArchivo = `${id}-${new Date().getMilliseconds()}.${extensionArchivo}`;
+  // console.log("nombreArchivo ", nombreArchivo);
+  // Ruta del archivo
+  const path = `./uploads/${tipo}/${nombreArchivo}`;
 
-async function guardarEnBaseDeDatos(
-  idMedicine = null,
-  nombreArchivo = "",
-  res,
-  user = {}
-) {
-  if (idMedicine) {
-    try {
+  switch (tipo) {
+    case "medicines":
       /* Preguntar si el idQR le pertenece al usuario del token */
       let lePertenecee = await lePerteneceElToken(
         user,
-        idMedicine,
+        id,
         Medicamento
       );
       if (!lePertenecee) {
@@ -198,6 +238,36 @@ async function guardarEnBaseDeDatos(
           msg: "No le pertenece ese medicamento",
         });
       }
+      subirArchivoAlServer(path, archivo);
+      guardarEnBDMedicines(id, nombreArchivo, res, user);
+      break;
+    case "users":
+      /* Preguntar si el id le pertenece al usuario del token */
+      if (user.idUser == id) {
+        // Todo bien
+        subirArchivoAlServer(path, archivo);
+        guardarEnBDUsers(id, nombreArchivo, res, user);
+      } else {
+        // Accion prohibida
+        return res.status(403).json({
+          ok: false,
+          msg: "No le pertenece ese usuario",
+        });
+      }
+      break;
+    default:
+      break;
+  }
+};
+
+async function guardarEnBDMedicines(
+  idMedicine = null,
+  nombreArchivo = "",
+  res,
+  user = {}
+) {
+  if (idMedicine) {
+    try {
       /* Buscar la medicamento. */
       let medicine = await Medicamento.findByPk(idMedicine);
       // console.log('medicamentos  ', medicine);
@@ -239,5 +309,91 @@ async function guardarEnBaseDeDatos(
       ok: false,
       msg: "Verificar el idMedicine y el token",
     });
+  }
+}
+async function guardarEnBDUsers(
+  id = null,
+  nombreArchivo = "",
+  res,
+  userToken = {}
+) {
+  if (id && userToken && res && nombreArchivo) {
+    try {
+      /* Buscar la User. */
+      let userDB = await User.findByPk(id);
+      // console.log('UserDBs  ', userDB);
+      if (userDB) {
+        // Si existe, elimina la imagen anterior
+        var pathViejo = "./uploads/users/" + userDB.img;
+
+        // Si existe, elimina la imagen anterior
+        if (fs.existsSync(pathViejo)) {
+          fs.unlink(pathViejo, (error) => {
+            if (error) {
+              console.log(error);
+            }
+            return;
+          });
+        }
+      }
+      //Cambiar el nombre de la img.
+      userDB.img = nombreArchivo;
+
+      userDB.updatedAt = new Date();
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await userDB.save();
+      if (!resultado) return next();
+      return res.status(200).json({
+        ok: true,
+        msg: "Usuario Actualizado",
+        userDB,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        msg: "Internal server error",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "Verificar el id y el token",
+    });
+  }
+}
+// Mover el archivo del temporal a un path. 
+const subirArchivoAlServer = (path, archivo) => {
+  archivo.mv(path, (err) => {
+    if (err) {
+      return res.status(500).json({
+        ok: false,
+        mensaje: "Error al mover el archivo.",
+        errors: err,
+      });
+    }
+  });
+};
+
+// Mostrar imagen.
+exports.getImageByType = async (req, res, next) => {
+  const {tipo, img} = req.params;
+  // Validar que el tipo sea medicines or users
+  if (tipo == "medicines" || tipo == "users") {
+    // Todo bien
+  } else {
+    // El usuario no envio un tipo valido.
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El tipo debe ser medicines o users",
+    });
+  }
+  const pathImg = path.resolve(__dirname,`../../uploads/${tipo}/${img}`),
+        noImage = path.resolve(__dirname,`../../uploads/no-image/no-image.png`);
+  
+  if(fs.existsSync(pathImg)){
+    res.sendFile(pathImg);
+  }else{
+    res.sendFile(noImage);
   }
 }

@@ -67,3 +67,5 @@ variables.env
 db/database.sqlite
 
 comandos-sql.txt
+
+tmp

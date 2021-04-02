@@ -38,6 +38,10 @@ const User = sequelize.define('User', {
   password: {
     type: Sequelize.STRING,
   },
+  img: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
   namesU: {
     type: Sequelize.STRING,
     allowNull: false,

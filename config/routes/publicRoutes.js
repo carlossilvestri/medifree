@@ -12,6 +12,7 @@ const DonanteSeleccionadoController = require("../../api/controllers/DonanteSele
 const uploadsController = require("../../api/controllers/uploadsController");
 //Middleware para proteger las rutas.
 const auth = require("../../api/middlewares/auth");
+const auth2 = require("../../api/middlewares/auth2");
 /*const publicRoutes = {
   'POST /user': 'UserController.register',
   'POST /register': 'UserController.register', // alias for POST /user
@@ -83,8 +84,10 @@ module.exports = () => {
   router.delete("/donante-seleccionado/:idDonanteSeleccionado", auth, DonanteSeleccionadoController.delete); // Registra una peticion de donacion.
 
   /* SUBIDA DE ARCHIVOS */
-  router.put("/upload/:idMedicine", auth, uploadsController.uploadImgToServer); // Editar/Agregar una img
-  router.put("/upload/cloudinary/:idMedicine", auth, uploadsController.subirACloudinary); // Editar/Agregar una img
+  router.put("/upload/:tipo/:id", auth, uploadsController.uploadImgToServer); // Editar/Agregar una img
+  // Es necesario mandar un /upload/:tipo/:img?token=
+  router.get("/upload/:tipo/:img", auth2.verificarTokenImg, uploadsController.getImageByType); // Editar/Agregar una img
+  router.put("/upload/cloudinary/:tipo/:id", auth, uploadsController.subirACloudinary); // Editar/Agregar una img
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get("/", (req, res) => {
