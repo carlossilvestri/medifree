@@ -1,0 +1,1767 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "version": "1.0",
+      "title": "MediFree Backend Api",
+      "contact": {}
+    },
+    "host": "backend-medifree.herokuapp.com",
+    "basePath": "/",
+    "schemes": [
+      "https"
+    ],
+    "consumes": [
+      "application/json"
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "paths": {
+      "/pais": {
+        "post": {
+          "summary": "Registrar Paises",
+          "tags": [
+            "Paises"
+          ],
+          "operationId": "RegistrarPaises",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameP",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtener Paises",
+          "tags": [
+            "Paises"
+          ],
+          "operationId": "ObtenerPaises",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/pais/1": {
+        "delete": {
+          "summary": "Borrar un Pais",
+          "tags": [
+            "Paises"
+          ],
+          "operationId": "BorrarunPais",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameP",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "put": {
+          "summary": "Actualizar Pais /pais/idPais",
+          "tags": [
+            "Paises"
+          ],
+          "operationId": "ActualizarPais/pais/idPais",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameP",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/ciudad": {
+        "get": {
+          "summary": "Obtener las Ciudades",
+          "tags": [
+            "Ciudades"
+          ],
+          "operationId": "ObtenerlasCiudades",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "post": {
+          "summary": "Registrar una ciudad",
+          "tags": [
+            "Ciudades"
+          ],
+          "operationId": "Registrarunaciudad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameCiudad",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idPaisF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "isVisible",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/ciudad/0": {
+        "delete": {
+          "summary": "Borrar Ciudad /ciudad/idCiudad",
+          "tags": [
+            "Ciudades"
+          ],
+          "operationId": "BorrarCiudad/ciudad/idCiudad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/ciudad/5": {
+        "put": {
+          "summary": "Borrar una ciudad /ciudad/:idCiudad",
+          "tags": [
+            "Ciudades"
+          ],
+          "operationId": "Borrarunaciudad/ciudad/:idCiudad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameCiudad",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idPaisF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "isVisible",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/categoria": {
+        "post": {
+          "summary": "Registrar Categoria",
+          "tags": [
+            "Categorias"
+          ],
+          "operationId": "RegistrarCategoria",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameCategoria",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "isVisible",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtener categorias",
+          "tags": [
+            "Categorias"
+          ],
+          "operationId": "Obtenercategorias",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/categoria/1": {
+        "put": {
+          "summary": "Modificar categoria /categoria/:idCategoria",
+          "tags": [
+            "Categorias"
+          ],
+          "operationId": "Modificarcategoria/categoria/:idCategoria",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameCategoria",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "isVisible",
+              "in": "formData",
+              "required": true,
+              "type": "boolean",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "delete": {
+          "summary": "Eliminar Categoria",
+          "tags": [
+            "Categorias"
+          ],
+          "operationId": "EliminarCategoria",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/gender": {
+        "post": {
+          "summary": "Crear genero",
+          "tags": [
+            "Gender (Sexo)"
+          ],
+          "operationId": "Creargenero",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameGender",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "isVisible",
+              "in": "formData",
+              "required": true,
+              "type": "boolean",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtener generos",
+          "tags": [
+            "Gender (Sexo)"
+          ],
+          "operationId": "Obtenergeneros",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/gender/1": {
+        "put": {
+          "summary": "Editar genero /genero/idGenero",
+          "tags": [
+            "Gender (Sexo)"
+          ],
+          "operationId": "Editargenero/genero/idGenero",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "nameGender",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "isVisible",
+              "in": "formData",
+              "required": true,
+              "type": "boolean",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/gender/4": {
+        "delete": {
+          "summary": "Eliminar gender /gender/idGender",
+          "tags": [
+            "Gender (Sexo)"
+          ],
+          "operationId": "Eliminargender/gender/idGender",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/user": {
+        "post": {
+          "summary": "Crear Usuario",
+          "tags": [
+            "Users"
+          ],
+          "operationId": "CrearUsuario",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "password",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "password2",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "emailU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "namesU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "lastNamesU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "identificationU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idCiudadF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "dateOfBirth",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "directionU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idGenderF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "tlf1",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Lista de usuarios ?desde",
+          "tags": [
+            "Users"
+          ],
+          "operationId": "Listadeusuarios?desde",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "desde",
+              "in": "query",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/login": {
+        "post": {
+          "summary": "Login",
+          "tags": [
+            "Users"
+          ],
+          "operationId": "Login",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "emailU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "password",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/user/15": {
+        "get": {
+          "summary": "Get user by id /user/:idUser",
+          "tags": [
+            "Users"
+          ],
+          "operationId": "Getuserbyid/user/:idUser",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/user/1": {
+        "put": {
+          "summary": "Editar usuarios id (Todo excepto email) token required",
+          "tags": [
+            "Users"
+          ],
+          "operationId": "Editarusuariosid(Todoexceptoemail)tokenrequired",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "emailU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "namesU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "lastNamesU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "identificationU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idCiudadF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "dateOfBirth",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "directionU",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idGenderF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "tlf1",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "tlf2",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/user/modify-password/password": {
+        "put": {
+          "summary": "Modificar solo password",
+          "tags": [
+            "Users"
+          ],
+          "operationId": "Modificarsolopassword",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "password",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "password2",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/qr": {
+        "get": {
+          "summary": "Obtener Lista de P de Seguridad",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "ObtenerListadePdeSeguridad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "desde",
+              "in": "query",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "post": {
+          "summary": "Crear Pregunta de Seguridad",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "CrearPreguntadeSeguridad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "q1",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "q2",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "r1",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "r2",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idUsuarioF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/qr/1": {
+        "delete": {
+          "summary": "Eliminar una P de Seguridad",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "EliminarunaPdeSeguridad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "put": {
+          "summary": "Modificar P S por id",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "ModificarPSporid",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "q1",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "q2",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "r1",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "r2",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Get PS por ID",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "GetPSporID",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/qr/token/get-token-to-modify-pass-by-email-and-answers": {
+        "get": {
+          "summary": "Obtener token para modificar password",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "Obtenertokenparamodificarpassword",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/qr/get-by-email/email": {
+        "get": {
+          "summary": "Obtener qr segun el email",
+          "tags": [
+            "Preguntas de Recuperacion Password"
+          ],
+          "operationId": "Obtenerqrsegunelemail",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/medicine": {
+        "post": {
+          "description": "Es necesario el token.",
+          "summary": "Crear un medicamento token required",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "Crearunmedicamentotokenrequired",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "nameM",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "descriptionM",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "inventaryM",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idCategoriaF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Medicamentos de todos",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "Medicamentosdetodos",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "desde",
+              "in": "query",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/medicine/4": {
+        "put": {
+          "summary": "Modificar token, idMedicine requeridos",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "Modificartoken,idMedicinerequeridos",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "in": "header",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "nameM",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "descriptionM",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "inventaryM",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            },
+            {
+              "name": "idCategoriaF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/medicine-by-user-id": {
+        "get": {
+          "summary": "Medicamentos del Usuario token required",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "MedicamentosdelUsuariotokenrequired",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/medicine/1": {
+        "get": {
+          "summary": "Medicamento por su Id",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "MedicamentoporsuId",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/medicine/3": {
+        "delete": {
+          "summary": "Borrar medicamento token required",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "Borrarmedicamentotokenrequired",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/medicines-by-city": {
+        "get": {
+          "summary": "Obtener por idCiudad",
+          "tags": [
+            "Medicamentos"
+          ],
+          "operationId": "ObtenerporidCiudad",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "desde",
+              "in": "query",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/peticion-donacion": {
+        "post": {
+          "summary": "Crear PD token required",
+          "tags": [
+            "PeticionDonacion"
+          ],
+          "operationId": "CrearPDtokenrequired",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "msjDonacion",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idMedicineF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtener todas las PD ?desde",
+          "tags": [
+            "PeticionDonacion"
+          ],
+          "operationId": "ObtenertodaslasPD?desde",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "desde",
+              "in": "query",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/peticion-donacion/2": {
+        "put": {
+          "summary": "Editar PD Token required del creador",
+          "tags": [
+            "PeticionDonacion"
+          ],
+          "operationId": "EditarPDTokenrequireddelcreador",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "msjDonacion",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idMedicineF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtener PD por ID",
+          "tags": [
+            "PeticionDonacion"
+          ],
+          "operationId": "ObtenerPDporID",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/peticion-donacion-solicitante": {
+        "get": {
+          "summary": "Obtener PD del Solicitante TOKEN",
+          "tags": [
+            "PeticionDonacion"
+          ],
+          "operationId": "ObtenerPDdelSolicitanteTOKEN",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/peticion-donacion-donador": {
+        "get": {
+          "summary": "Obtener PD del Creador/Donador medicamento TOKEN",
+          "tags": [
+            "PeticionDonacion"
+          ],
+          "operationId": "ObtenerPDdelCreador/DonadormedicamentoTOKEN",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/donante-seleccionado": {
+        "post": {
+          "summary": "Crear DS Token required",
+          "tags": [
+            "Donante Seleccionado"
+          ],
+          "operationId": "CrearDSTokenrequired",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "idPDonacionF",
+              "in": "formData",
+              "required": true,
+              "type": "integer",
+              "format": "int32",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "get": {
+          "summary": "Obtener DS todos ?desde",
+          "tags": [
+            "Donante Seleccionado"
+          ],
+          "operationId": "ObtenerDStodos?desde",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/donante-seleccionado/1": {
+        "get": {
+          "summary": "Obtener DS por ID",
+          "tags": [
+            "Donante Seleccionado"
+          ],
+          "operationId": "ObtenerDSporID",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        },
+        "delete": {
+          "summary": "Eliminar DS Token required del creador del medicamento",
+          "tags": [
+            "Donante Seleccionado"
+          ],
+          "operationId": "EliminarDSTokenrequireddelcreadordelmedicamento",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/upload/users/1": {
+        "put": {
+          "summary": "Subir al Server",
+          "tags": [
+            "Uploads"
+          ],
+          "operationId": "SubiralServer",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "imagen",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/upload/cloudinary/users/1": {
+        "put": {
+          "summary": "Subir a Cloudinary",
+          "tags": [
+            "Uploads"
+          ],
+          "operationId": "SubiraCloudinary",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "consumes": [
+            "application/x-www-form-urlencoded"
+          ],
+          "parameters": [
+            {
+              "name": "token",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            },
+            {
+              "name": "imagen",
+              "in": "formData",
+              "required": true,
+              "type": "string",
+              "description": ""
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      },
+      "/upload/users/1-822.png": {
+        "get": {
+          "summary": "Obtener img",
+          "tags": [
+            "Uploads"
+          ],
+          "operationId": "Obtenerimg",
+          "deprecated": false,
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "headers": {}
+            }
+          }
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "Paises"
+      },
+      {
+        "name": "Ciudades"
+      },
+      {
+        "name": "Categorias"
+      },
+      {
+        "name": "Gender (Sexo)"
+      },
+      {
+        "name": "Users"
+      },
+      {
+        "name": "Preguntas de Recuperacion Password"
+      },
+      {
+        "name": "Medicamentos"
+      },
+      {
+        "name": "PeticionDonacion"
+      },
+      {
+        "name": "Donante Seleccionado"
+      },
+      {
+        "name": "Uploads"
+      }
+    ]
+  }

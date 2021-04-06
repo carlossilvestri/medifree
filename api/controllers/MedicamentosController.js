@@ -2,8 +2,10 @@
 const Ciudad = require("../models/Gender");*/
 const { lePerteneceElToken } = require("../functions/function");
 const Categoria = require("../models/Categoria");
+// const Ciudad = require("../models/Ciudad");
 const Medicamento = require("../models/Medicamento");
 const User = require("../models/User");
+
 /*
 ==========================================
 Registrar un medicine: POST - /medicine Body: (x-www-form-urlencoded) nameM, descriptionM, inventaryM, idCategoriaF, idUsuarioF
@@ -86,6 +88,70 @@ exports.getAll = async (req, res) => {
       console.log(err);
       return res.status(500).json({
         msg: "Internal server error",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicamentos en general: GET /medicines-by-city ?desde=0 Body: idCiudad
+// ==========================================
+exports.getByCityId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+  const { idCiudad } = req.body;
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idCiudad) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              as: "categoria",
+            },
+            {
+              model: User,
+              as: "creador",
+              where: {
+                idCiudadF: idCiudad
+              },
+            },
+          ],
+        });
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    }else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe enviar un idCiudad",
       });
     }
   } else {
