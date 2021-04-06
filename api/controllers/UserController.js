@@ -443,3 +443,73 @@ exports.editUserById = async (req, res) => {
     });
   }
 }
+/*
+==========================================
+Editar el password de un usuario. Body: password, password2
+==========================================
+*/
+
+exports.editPassword = async (req, res) => {
+  // Debuggear
+  console.log('req.body ', req.body);
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  console.log('req.user ', user);
+  // Obtener los datos por destructuring.
+  const {
+    password,
+    password2,
+  } = req.body;
+  // console.log('tlf1 ', tlf1);
+  /*
+  ===============================================
+  TIPOS DE DATOS: Tabla User.
+  ==============================================
+  password string, password2 string
+  */
+  // Validar los datos
+  // Que existan los datos obligatorios.
+  if (password && password2 && user) {
+    /*
+    El usuario debe enviar la clave y la clave repetida para confirmar su clave por seguridad.
+    Clave = password
+    Clave repetida = password2
+    */
+    // Si el usuario envia su clave, verificar.
+    try {
+      let userFound = await User.findByPk(user.idUser);
+      // console.log('USUARIO  ', user);
+      //Si las passwords coinciden:
+      if (password && password2) {
+        if (password === password2) {
+        userFound.password = password;
+        userFound.password =  bcryptService().password(userFound); 
+        } else {
+          return res.status(400).json({
+            ok: false,
+            msg: 'Bad Request: Passwords don\'t match'
+          });
+        }
+      }
+      userFound.updatedAt = new Date();
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await userFound.save();
+      if (!resultado) return next();
+      return res.status(200).json({
+        ok: true,
+        msg: 'Usuario Actualizado'
+      });
+    } catch (err) {
+      console.log(err);
+      // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
+      return res.status(500).json({
+        ok: false,
+        msg: 'Internal server error'
+      });
+    }
+  } else {
+    return res.status(400).json({
+      ok: false,
+      msg: 'Faltan datos por completar. (password string, password2 string'
+    });
+  }
+}

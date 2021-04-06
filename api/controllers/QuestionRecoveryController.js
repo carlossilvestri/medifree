@@ -3,6 +3,8 @@ const Ciudad = require("../models/Gender");*/
 const { lePerteneceElToken } = require("../functions/function");
 const QuestionRecovery = require("../models/QuestionRecovery");
 const User = require("../models/User");
+const authService = require('../services/auth.service');
+
 /*
 ==========================================
 Registrar un qr: POST - /qr Body: (x-www-form-urlencoded) q1, q2, r1, r2, idUsuarioF
@@ -75,7 +77,7 @@ exports.getAll = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los qres: GET /qr/:idQr
+// Obtiene los qres segun su id: GET /qr/:idQr
 // ==========================================
 exports.getQRById = async (req, res) => {
   // Obtener los datos por destructuring.
@@ -138,6 +140,96 @@ exports.getQRById = async (req, res) => {
     });
   }
 };
+//==========================================
+// Edita una qr segun el email y las respuesta correctas. Params: 
+//==========================================
+exports.getTokenByEmailAndAnswers = async (req, res) => {
+  // Obtener la info del body (email, r1, r2).
+  const { email, r1, r2 } = req.body;
+
+  // Comprobar que no vengan valores vacios.
+  if(!email || !r1 || !r2){
+    return res.status(400).json({
+      ok: false,
+      msg: "Ingrese un email y las respuestas a las preguntas de seguridad.",
+    });
+  }
+
+  // Obtener el qr del email y que las respuestas coincidan.
+  const qr = await QuestionRecovery.findOne({
+    include: [
+      {
+        model: User,
+        as: "usuario",
+        where: {
+          emailU: email
+        }
+      },
+    ],
+    where: {
+      r1,
+      r2
+    }
+  });
+  // Validar que venga una qr
+  if (!qr) {
+    // Accion prohibida
+    return res.status(403).json({
+      ok: false,
+      msg: "Revise sus respuestas",
+    });
+  }
+  const token = authService().issue({
+    user: qr.usuario
+  });
+  // Todo bien
+  return res.status(200).json({
+    ok: true,
+    token,
+    qr,
+  });
+}
+//==========================================
+// Obtener qr por email. Params: email
+//==========================================
+exports.getByEmail = async (req, res) => {
+  // Obtener la info del body (email, r1, r2).
+  const { email} = req.body;
+
+  // Comprobar que no vengan valores vacios.
+  if(!email){
+    return res.status(400).json({
+      ok: false,
+      msg: "Ingrese un email.",
+    });
+  }
+
+  // Obtener el qr del email y que las respuestas coincidan.
+  const qr = await QuestionRecovery.findOne({
+    include: [
+      {
+        model: User,
+        as: "usuario",
+        where: {
+          emailU: email
+        }
+      },
+    ],
+  });
+  // Validar que venga una qr
+  if (!qr) {
+    // Accion prohibida
+    return res.status(403).json({
+      ok: false,
+      msg: "No se encontraron preguntas de seguridad según el email especificado",
+    });
+  }
+  // Todo bien
+  return res.status(200).json({
+    ok: true,
+    qr,
+  });
+}
 /*
 ==========================================
 Editar qres por id. PUT /qr/:idQr  Body (x-www-form-urlencoded) q1, q2, r1, r2, token

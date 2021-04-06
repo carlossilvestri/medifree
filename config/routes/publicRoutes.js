@@ -53,12 +53,16 @@ module.exports = () => {
   router.get("/user", UserController.getAll); // Obtener usuarios. (Paginados, indicando desde).
   router.get("/user/:idUser", UserController.getUserById); // Obtener usuario por id.
   router.put("/user/:idUser", auth, UserController.editUserById); // Editar usuarios (Todo excepto email).
+  router.put("/user/modify-password/password", auth, UserController.editPassword); // Modificar solo el password. Sirve cuando se han contestado correctamente las preguntas de seguridad.
   
   /* Question Recovery */
   router.post("/qr", auth, QuestionRecoveryController.register); // Registra nuevas preguntas de seguridad.
+  // Modificar todos los campos de QR
   router.put("/qr/:idQr", auth, QuestionRecoveryController.editById); // Editar una pregunta de seguridad por Id
+  router.get("/qr/token/get-token-to-modify-pass-by-email-and-answers", QuestionRecoveryController.getTokenByEmailAndAnswers); // Editar una pregunta de seguridad segun email y preguntas respondidas correctamente.
   router.get("/qr", QuestionRecoveryController.getAll); // Obtener las preguntas de recuperacion asi como sus respuestas. (Paginados, indicando desde).
   router.get("/qr/:idQr", auth, QuestionRecoveryController.getQRById); // Obtener la preguntas de recuperacion por id
+  router.get("/qr/get-by-email/email", QuestionRecoveryController.getByEmail); // Obtener la preguntas de recuperacion por email
   router.delete("/qr/:idQr", auth, QuestionRecoveryController.delete); // Borrar un QuestionRecovery por ID.
   
   /* MEDICINES */
@@ -86,7 +90,7 @@ module.exports = () => {
   /* SUBIDA DE ARCHIVOS */
   router.put("/upload/:tipo/:id", auth, uploadsController.uploadImgToServer); // Editar/Agregar una img
   // Es necesario mandar un /upload/:tipo/:img?token=
-  router.get("/upload/:tipo/:img", auth2.verificarTokenImg, uploadsController.getImageByType); // Editar/Agregar una img
+  router.get("/upload/:tipo/:img", uploadsController.getImageByType); // Editar/Agregar una img
   router.put("/upload/cloudinary/:tipo/:id", auth, uploadsController.subirACloudinary); // Editar/Agregar una img
   // TODO create users CRUD.
   /* PRUEBAS */
