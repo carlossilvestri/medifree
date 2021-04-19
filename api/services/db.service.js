@@ -88,7 +88,8 @@ const dbService = (environment, migrate) => {
   const start = async () => {
     switch (environment) {
       case 'development':
-        // await startDev();
+        // Si se descomenta esta linea, borra todos los registros de la base de datos, pero agrega algun campo nuevo a las tablas
+        await startDev();
         break;
       case 'staging':
         await startStage();

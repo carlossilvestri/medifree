@@ -76,6 +76,10 @@ const User = sequelize.define('User', {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  isSuperAdministrator: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
 }, { hooks, tableName });
 
 // Llaves foraneas.

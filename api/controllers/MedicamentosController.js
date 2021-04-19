@@ -5,6 +5,7 @@ const Categoria = require("../models/Categoria");
 // const Ciudad = require("../models/Ciudad");
 const Medicamento = require("../models/Medicamento");
 const User = require("../models/User");
+const { Op } = require("sequelize"); // Sequelize operator.
 
 /*
 ==========================================
@@ -99,6 +100,73 @@ exports.getAll = async (req, res) => {
   }
 };
 // ==========================================
+// Obtiene todos los medicamentos en general: GET /medicine-by-keyword ?desde=0
+// ==========================================
+exports.getMedicineByKeyword = async (req, res) => {
+  let desde = req.query.desde || 0;
+  const { nameM } = req.body;
+  desde = Number(desde);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (nameM) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            nameM: {
+              [Op.like]: '%' + nameM + '%',
+            }
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              as: "categoria",
+            },
+            {
+              model: User,
+              as: "creador",
+              include: ["ciudades", "sexos"],
+            },
+          ],
+        });
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe ingresar un nameM",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
 // Obtiene todos los medicamentos en general: GET /medicines-by-city ?desde=0 Body: idCiudad
 // ==========================================
 exports.getByCityId = async (req, res) => {
@@ -122,7 +190,7 @@ exports.getByCityId = async (req, res) => {
               model: User,
               as: "creador",
               where: {
-                idCiudadF: idCiudad
+                idCiudadF: idCiudad,
               },
             },
           ],
@@ -147,7 +215,7 @@ exports.getByCityId = async (req, res) => {
           msg: "Internal server error",
         });
       }
-    }else {
+    } else {
       // 400 (Bad Request)
       return res.status(400).json({
         ok: false,
