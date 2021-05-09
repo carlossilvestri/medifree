@@ -14,7 +14,7 @@ const uploadsController = require("../../api/controllers/uploadsController");
 const swaggerDocumentOne = require('../../api/swagger-doc/swagger-one.json');
 //Middleware para proteger las rutas.
 const auth = require("../../api/middlewares/auth");
-// const auth2 = require("../../api/middlewares/auth2");
+const auth2 = require("../../api/middlewares/auth2");
 // Swagger
 const swaggerUI = require("swagger-ui-express");
 const swaggerOptions = {
@@ -79,7 +79,7 @@ module.exports = () => {
     QuestionRecoveryController.getTokenByEmailAndAnswers
   ); // Editar una pregunta de seguridad segun email y preguntas respondidas correctamente.
   router.get("/qr", QuestionRecoveryController.getAll); // Obtener las preguntas de recuperacion asi como sus respuestas. (Paginados, indicando desde).
-  router.get("/qr/:idQr", auth, QuestionRecoveryController.getQRById); // Obtener la preguntas de recuperacion por id
+  router.get("/qr/:idQr", auth2.verificarTokenDesdeQuery, QuestionRecoveryController.getQRById); // Obtener la preguntas de recuperacion por id
   router.get("/qr/get-by-email/email", QuestionRecoveryController.getByEmail); // Obtener la preguntas de recuperacion por email
   router.delete("/qr/:idQr", auth, QuestionRecoveryController.delete); // Borrar un QuestionRecovery por ID.
 

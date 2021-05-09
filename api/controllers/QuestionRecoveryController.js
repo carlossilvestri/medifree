@@ -83,8 +83,9 @@ exports.getQRById = async (req, res) => {
   // Obtener los datos por destructuring.
   const idQr = Number(req.params.idQr);
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  // const token = req.query.token;
   // console.log(user);
-  // console.log(req);
+  // console.log('req ', req);
   if (idQr && user) {
     try {
       /* Preguntar si el idQR le pertenece al usuario del token */
