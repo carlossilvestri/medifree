@@ -81,6 +81,7 @@ module.exports = () => {
   router.get("/qr", QuestionRecoveryController.getAll); // Obtener las preguntas de recuperacion asi como sus respuestas. (Paginados, indicando desde).
   router.get("/qr/:idQr", auth2.verificarTokenDesdeQuery, QuestionRecoveryController.getQRById); // Obtener la preguntas de recuperacion por id
   router.get("/qr/get-by-email/email", QuestionRecoveryController.getByEmail); // Obtener la preguntas de recuperacion por email
+  router.get("/qr/get-by-user-token/token",  auth2.verificarTokenDesdeQuery, QuestionRecoveryController.getQuestionsByUserId); // Obtener la preguntas de recuperacion por email
   router.delete("/qr/:idQr", auth, QuestionRecoveryController.delete); // Borrar un QuestionRecovery por ID.
 
   /* MEDICINES */
@@ -149,6 +150,9 @@ module.exports = () => {
     auth,
     uploadsController.subirACloudinary
   ); // Editar/Agregar una img
+
+  /* REFRESACAR TOKEN */
+  router.get("/refresh-token", UserController.getTokenRefreshed); // Obtener usuarios. (Paginados, indicando desde).
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get("/", (req, res) => {

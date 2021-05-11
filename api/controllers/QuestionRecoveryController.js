@@ -85,7 +85,7 @@ exports.getQRById = async (req, res) => {
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
   // const token = req.query.token;
   // console.log(user);
-  // console.log('req ', req);
+   // console.log('req ', req);
   if (idQr && user) {
     try {
       /* Preguntar si el idQR le pertenece al usuario del token */
@@ -191,7 +191,7 @@ exports.getTokenByEmailAndAnswers = async (req, res) => {
   });
 }
 //==========================================
-// Obtener qr por email. Params: email
+// Obtener qr por email. Body: email
 //==========================================
 exports.getByEmail = async (req, res) => {
   // Obtener la info del body (email, r1, r2).
@@ -214,6 +214,46 @@ exports.getByEmail = async (req, res) => {
         where: {
           emailU: email
         }
+      },
+    ],
+  });
+  // Validar que venga una qr
+  if (!qr) {
+    // Accion prohibida
+    return res.status(403).json({
+      ok: false,
+      msg: "No se encontraron preguntas de seguridad según el email especificado",
+    });
+  }
+  // Todo bien
+  return res.status(200).json({
+    ok: true,
+    qr,
+  });
+}
+//==========================================
+// Obtener qr por email. Params: ?token= 
+//==========================================
+exports.getQuestionsByUserId = async (req, res) => {
+  // Obtener la info del body (email, r1, r2).
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  // Comprobar que no vengan valores vacios.
+  if(!user.idUser){
+    return res.status(400).json({
+      ok: false,
+      msg: "Ingrese un token.",
+    });
+  }
+
+  // Obtener el qr del email y que las respuestas coincidan.
+  const qr = await QuestionRecovery.findOne({
+    where: {
+      idUsuarioF: user.idUser
+    },
+    include: [
+      {
+        model: User,
+        as: "usuario"
       },
     ],
   });

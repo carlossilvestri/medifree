@@ -22,6 +22,7 @@ exports.lePerteneceElToken = async (user = "", id = "", model = "") => {
       } else {
         /* Preguntar si el id no le pertenece al usuario del token */
         if(resultado.idUser){
+          console.log('Resultado ', resultado);
             if(resultado.idUser == user.idUser){
               return true;  
             }else{

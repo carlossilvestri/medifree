@@ -513,3 +513,57 @@ exports.editPassword = async (req, res) => {
     });
   }
 }
+
+//==========================================
+// Edita una qr segun el email y las respuesta correctas. Params: ?idUser 
+//==========================================
+exports.getTokenRefreshed = async (req, res) => {
+  // Obtener la info del param (idUser).
+  const idUser = Number(req.query.idUser);
+  console.log('idUser ', idUser );
+  console.log('req.params.idUser ', req.query.idUser );
+  // Comprobar que no vengan valores vacios.
+  if(!idUser){
+      return res.status(400).json({
+        ok: false,
+        msg: "Ingrese un idUser.",
+      });
+    }
+  // Buscar usuario.
+  try {
+    let user = await User.findByPk(idUser, {
+      include: [{
+          model: Ciudad,
+          as: 'ciudades',
+          include: 'paises'
+        },
+        {
+          model: Gender,
+          as: 'sexos'
+        }
+      ]
+    });
+    // Si existe el usuario
+    if (user) {
+      const token = authService().issue({
+        user: user
+      });
+      // Todo bien
+      return res.status(200).json({
+        ok: true,
+        token,
+      });
+    }
+    // No existe el usuario
+    return res.status(400).json({
+      ok: false,
+      mensaje: 'No se encontró al usuario.'
+    });
+  } catch (error) {
+    console.log(err);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Internal server error'
+    });
+  }
+}
