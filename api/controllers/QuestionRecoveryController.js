@@ -260,8 +260,9 @@ exports.getQuestionsByUserId = async (req, res) => {
   // Validar que venga una qr
   if (!qr) {
     // Accion prohibida
-    return res.status(403).json({
+    return res.status(200).json({
       ok: false,
+      qr: [],
       msg: "No se encontraron preguntas de seguridad según el email especificado",
     });
   }
