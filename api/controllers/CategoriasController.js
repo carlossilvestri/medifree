@@ -21,6 +21,13 @@ exports.register = async (req, res) => {
             });
         } catch (err) {
             console.log(err);
+            if (err.errors[0].message) {
+                    // Accion Prohibida
+                    return res.status(403).json({
+                        ok: false,
+                        msg: err.errors[0].message
+                    });
+            }
             return res.status(500).json({
                 msg: 'Internal server error'
             });
@@ -62,7 +69,7 @@ exports.edit = async (req, res) => {
     const idCategoria = req.params.idCategoria,
         nameCategoria = req.body.nameCategoria,
         isVisible = req.body.isVisible,
-        validVisible = isBoolean(isVisible);
+        validVisible = this.isBoolean(isVisible);
         // console.log(req.body);
     // Si existen las variables que se necesitan.
     if (idCategoria) {
@@ -75,16 +82,22 @@ exports.edit = async (req, res) => {
                             idCategoria
                         }
                     });
+                    if (!categoria) {
+                        return res.status(400).json({
+                            ok: false,
+                            msg: 'idCategoria no registrada'
+                        });
+                    }
                     //Cambiar el nombre del categoria:
                     categoria.nameCategoria = nameCategoria;
                     categoria.isVisible = isVisible;
                     categoria.updatedAt = new Date();
                     //Metodo save de sequelize para guardar en la BDD
                     const resultado = await categoria.save();
-                    if (!resultado) return next();
                     return res.status(200).json({
                         ok: true,
-                        msg: 'Categoria Actualizada'
+                        msg: 'Categoria Actualizada',
+                        categoria: resultado
                     });
                 }else{
                     return res.status(400).json({
@@ -100,12 +113,14 @@ exports.edit = async (req, res) => {
 
         } catch (err) {
             //console.log(err.original.errno);
-            if(err.original.errno == 1452){
-                // Accion Prohibida
-                return res.status(403).json({
-                    ok: false,
-                    msg: err.original.sqlMessage
-                }); 
+            if(err.original){
+                if(err.original.errno == 1452){
+                    // Accion Prohibida
+                    return res.status(403).json({
+                        ok: false,
+                        msg: err.original.sqlMessage
+                    }); 
+                }
             }
             return res.status(500).json({
                 ok: false,
@@ -125,7 +140,7 @@ Funcion que comprueba si el booleano es valido. Regresa true si es valida y fals
 */
 exports.isBoolean = (string = '') => {
     console.log('string ', string);
-    if(string == '1' || string == '0'){
+    if(string == '1' || string == '0' || string == 'true' || string == 'false'){
         return true;
     }else{
         return false;
