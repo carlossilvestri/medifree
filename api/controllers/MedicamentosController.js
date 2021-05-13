@@ -104,7 +104,7 @@ exports.getAll = async (req, res) => {
 // ==========================================
 exports.getMedicineByKeyword = async (req, res) => {
   let desde = req.query.desde || 0;
-  const { nameM } = req.body;
+  const nameM  = req.query.nameM;
   desde = Number(desde);
   // console.log(req);
   if (desde == 0 || desde > 0) {
@@ -135,6 +135,7 @@ exports.getMedicineByKeyword = async (req, res) => {
           // 400 (Bad Request)
           return res.status(400).json({
             ok: false,
+            medicines: [],
             msg: "No hay medicamentos",
           });
         }
@@ -232,7 +233,7 @@ exports.getByCityId = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los medicines: GET /medicine-by-user-id?token= == TOKEN REQUIRED ==
+// Obtiene todos los medicines: GET /medicine-by-user-id?desde=0&token= == TOKEN REQUIRED ==
 // ==========================================
 exports.getMedicineByUserId = async (req, res) => {
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
@@ -286,6 +287,72 @@ exports.getMedicineByUserId = async (req, res) => {
       return res.status(400).json({
         ok: false,
         msg: "Verificar el token",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicines: GET /medicine-by-category-id?desde=0&idCategoria=1
+// ==========================================
+exports.getMedicineByCategoryId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  let idCategoria = req.query.idCategoria || 0;
+  desde = Number(desde);
+  idCategoria = Number(idCategoria);
+  // console.log(user);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idCategoria) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            idCategoriaF: idCategoria,
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              as: "categoria",
+            },
+            {
+              model: User,
+              as: "creador",
+              include: ["ciudades", "sexos"],
+            },
+          ],
+        });
+        if (!medicines) {
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay resultados de medicamentos para ese idCategoria",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Ingrese una idCategoria",
       });
     }
   } else {

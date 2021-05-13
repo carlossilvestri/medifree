@@ -96,6 +96,10 @@ module.exports = () => {
     MedicamentosController.getMedicineByUserId
   ); // Obtener los medicamentos del usuario del token.
   router.get(
+    "/medicine-by-category-id",
+    MedicamentosController.getMedicineByCategoryId
+  ); // Obtener los medicamentos del usuario del token.
+  router.get(
     "/medicine-by-keyword",
     MedicamentosController.getMedicineByKeyword
   ); // Buscar los medicamentos por su nombre (Barra de busqueda).
