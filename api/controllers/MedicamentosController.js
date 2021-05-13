@@ -232,7 +232,7 @@ exports.getByCityId = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los medicines: GET /medicine/:idMedicine == TOKEN REQUIRED ==
+// Obtiene todos los medicines: GET /medicine-by-user-id?token= == TOKEN REQUIRED ==
 // ==========================================
 exports.getMedicineByUserId = async (req, res) => {
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
