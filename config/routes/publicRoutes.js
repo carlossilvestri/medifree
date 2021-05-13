@@ -92,7 +92,7 @@ module.exports = () => {
   router.get("/medicine/:idMedicine", MedicamentosController.getMedicineById); // Obtener los medicamentos por su id
   router.get(
     "/medicine-by-user-id",
-    auth,
+    auth2.verificarTokenDesdeQuery,
     MedicamentosController.getMedicineByUserId
   ); // Obtener los medicamentos del usuario del token.
   router.get(

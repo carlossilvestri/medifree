@@ -171,8 +171,9 @@ exports.getMedicineByKeyword = async (req, res) => {
 // ==========================================
 exports.getByCityId = async (req, res) => {
   let desde = req.query.desde || 0;
+  let idCiudad  = req.query.idCiudad || 0;
   desde = Number(desde);
-  const { idCiudad } = req.body;
+  idCiudad = Number(idCiudad);
   // console.log(req);
   if (desde == 0 || desde > 0) {
     if (idCiudad) {
