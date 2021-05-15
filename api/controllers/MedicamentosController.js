@@ -6,6 +6,8 @@ const Categoria = require("../models/Categoria");
 const Medicamento = require("../models/Medicamento");
 const User = require("../models/User");
 const { Op } = require("sequelize"); // Sequelize operator.
+const Ciudad = require("../models/Ciudad");
+const Pais = require("../models/Pais");
 
 /*
 ==========================================
@@ -67,7 +69,16 @@ exports.getAll = async (req, res) => {
           {
             model: User,
             as: "creador",
-            include: ["ciudades", "sexos"],
+            include: ["sexos", 
+            {
+              model: Ciudad,
+              as: "ciudades",
+              include: [ {
+                model: Pais,
+                as: "paises",
+              }]
+            },
+          ],
           },
         ],
       });
@@ -127,7 +138,16 @@ exports.getMedicineByKeyword = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["ciudades", "sexos"],
+              include: ["sexos", 
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [ {
+                  model: Pais,
+                  as: "paises",
+                }]
+              },
+            ],
             },
           ],
         });
@@ -195,6 +215,20 @@ exports.getByCityId = async (req, res) => {
                 idCiudadF: idCiudad,
               },
             },
+            {
+              model: User,
+              as: "creador",
+              include: ["sexos", 
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [ {
+                  model: Pais,
+                  as: "paises",
+                }]
+              },
+            ],
+            },
           ],
         });
         if (!medicines) {
@@ -259,7 +293,16 @@ exports.getMedicineByUserId = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["ciudades", "sexos"],
+              include: ["sexos", 
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [ {
+                  model: Pais,
+                  as: "paises",
+                }]
+              },
+            ],
             },
           ],
         });
@@ -325,7 +368,16 @@ exports.getMedicineByCategoryId = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["ciudades", "sexos"],
+              include: ["sexos", 
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [ {
+                  model: Pais,
+                  as: "paises",
+                }]
+              },
+            ],
             },
           ],
         });
@@ -382,7 +434,16 @@ exports.getMedicineById = async (req, res) => {
           {
             model: User,
             as: "creador",
-            include: ["ciudades", "sexos"],
+            include: ["sexos", 
+            {
+              model: Ciudad,
+              as: "ciudades",
+              include: [ {
+                model: Pais,
+                as: "paises",
+              }]
+            },
+          ],
           },
         ],
       });

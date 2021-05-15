@@ -103,7 +103,7 @@ module.exports = () => {
     "/medicine-by-keyword",
     MedicamentosController.getMedicineByKeyword
   ); // Buscar los medicamentos por su nombre (Barra de busqueda).
-  router.delete("/medicine/:idMedicine", auth, MedicamentosController.delete); // Borrar un QuestionRecovery por ID.
+  router.delete("/medicine/:idMedicine", auth2.verificarTokenDesdeQuery, MedicamentosController.delete); // Borrar un QuestionRecovery por ID.
 
   /* PETICION DONACION */
   router.post("/peticion-donacion", auth, PeticionDonacionController.register); // Registra una peticion de donacion.
