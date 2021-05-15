@@ -114,12 +114,12 @@ module.exports = () => {
   ); // Registra una peticion de donacion
   router.get(
     "/peticion-donacion-donador",
-    auth,
+    auth2.verificarTokenDesdeQuery,
     PeticionDonacionController.getPDOfDonator
   ); // Obtener las peticiones de donaciones del donador/quien registro del medicamento.
   router.get(
     "/peticion-donacion-solicitante",
-    auth,
+    auth2.verificarTokenDesdeQuery,
     PeticionDonacionController.getPDSolicitante
   ); // Obtener las peticiones de donaciones del solicitante.
   router.put(
