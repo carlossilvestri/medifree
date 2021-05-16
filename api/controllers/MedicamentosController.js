@@ -204,6 +204,9 @@ exports.getByCityId = async (req, res) => {
           limit: 10,
           offset: desde,
           order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+          },
           include: [
             {
               model: Categoria,
@@ -286,6 +289,9 @@ exports.getMedicineByUserId = async (req, res) => {
             idUsuarioF: user.idUser,
           },
           order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+          },
           include: [
             {
               model: Categoria,
@@ -361,6 +367,9 @@ exports.getMedicineByCategoryId = async (req, res) => {
             idCategoriaF: idCategoria,
           },
           order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+          },
           include: [
             {
               model: Categoria,

@@ -140,6 +140,14 @@ module.exports = () => {
     "/donante-seleccionado/:idDonanteSeleccionado",
     DonanteSeleccionadoController.getById
   ); // Obtener todos los donantes seleccionados por su id. No es necesario el token .
+  router.get(
+    "/donante-seleccionado-creador/:idUser",
+    DonanteSeleccionadoController.getByUserCreadorId
+  ); // Obtener todos los donantes seleccionados or el id del creador.
+  router.get(
+    "/donante-seleccionado-solicitante/:idUser",
+    DonanteSeleccionadoController.getByUserSolicitanteId
+  ); // Obtener todos los donantes seleccionados por el id del solicitante.
   router.delete(
     "/donante-seleccionado/:idDonanteSeleccionado",
     auth,

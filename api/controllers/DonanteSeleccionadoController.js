@@ -8,16 +8,16 @@ const { isBoolean } = require("./CategoriasController");
 const PeticionDonacion = require("../models/PeticionDonacion");
 /*
 ==========================================
-Registrar un donante-seleccionado: POST - /donante-seleccionado Body: (x-www-form-urlencoded) idDonanteSeleccionadoF
+Registrar un donante-seleccionado: POST - /donante-seleccionado Body: (x-www-form-urlencoded) idPDonacionF
 ==========================================
 */
 exports.register = async (req, res) => {
-  const { idDonanteSeleccionadoF } = req.body;
+  const { idPDonacionF } = req.body;
   const user = req.user; // Al tener el token puedo tener acceso a req.user
-  if (idDonanteSeleccionadoF && user) {
+  if (idPDonacionF && user) {
     try {
       // Buscar el medicamento.
-      const peticionDonacion = await PeticionDonacion.findByPk(idDonanteSeleccionadoF);
+      const peticionDonacion = await PeticionDonacion.findByPk(idPDonacionF);
       // Hay que ver si el usuario logueado es el creador del medicamento.
       /* Preguntar si el idDonanteSeleccionado le pertenece al usuario del token */
       let lePertenecee = await lePerteneceElToken(
@@ -33,7 +33,7 @@ exports.register = async (req, res) => {
         });
       }
       const donanteS = await DonanteSeleccionado.create({
-        idDonanteSeleccionadoF,
+        idPDonacionF,
       });
       return res.status(200).json({
         ok: true,
@@ -50,7 +50,7 @@ exports.register = async (req, res) => {
 
   return res.status(400).json({
     ok: false,
-    msg: "Bad Request: Revise los campos body (idDonanteSeleccionadoF, token)",
+    msg: "Bad Request: Revise los campos body (idPDonacionF, token)",
   });
 };
 // ==========================================
@@ -207,6 +207,218 @@ exports.getById = async (req, res) => {
     return res.status(400).json({
       ok: false,
       msg: "Verificar el idDonanteSeleccionado y el token",
+    });
+  }
+};
+// ==========================================
+// Obtiene una peticion de donacion especifica por su Id: GET /donante-seleccionado-creador/:idUser
+// ==========================================
+exports.getByUserCreadorId= async (req, res) => {
+  // Obtener los datos por destructuring.
+  const idUser = Number(req.params.idUser);
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+
+  // For debugging purposes
+  // console.log(' desde ', desde);
+  // return;
+  if (desde == 0 || desde > 0) {
+    if (idUser) {
+      try {
+        let donanteS = await DonanteSeleccionado.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: PeticionDonacion,
+              as: "peticionDonacion",
+              include: [
+                {
+                  model: Medicamento,
+                  as: "medicamento",
+                  include: [
+                    "categoria",
+                    {
+                      model: User,
+                      as: "creador",
+                       where: {
+                         idUser,
+                       },
+                      include: [
+                        "sexos",
+                        {
+                          model: Ciudad,
+                          as: "ciudades",
+                          include: ["paises"],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  model: User,
+                  as: "solicitante",
+                  include: [
+                    "sexos",
+                    {
+                      model: Ciudad,
+                      as: "ciudades",
+                      include: ["paises"],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        /*
+        // For debugging
+        console.log('donanteS ', donanteS);
+        console.log('donanteS[0].dataValues.peticionDonacion.dataValues.medicamento ', donanteS[0].dataValues.peticionDonacion.dataValues.medicamento);
+        */
+        if(donanteS[0]){
+          if(donanteS[0].dataValues){
+            if(!donanteS[0].dataValues.peticionDonacion.dataValues.medicamento){
+              donanteS = [];
+            }
+          }
+        }
+        const cantidadDS = donanteS.length;
+        // console.log('users ', users.length);
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadDS,
+          donanteS,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          ok: false,
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Verificar el idUser y el token",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene una peticion de donacion especifica por su Id: GET /donante-seleccionado-solicitante/:idUser
+// ==========================================
+exports.getByUserSolicitanteId= async (req, res) => {
+  // Obtener los datos por destructuring.
+  const idUser = Number(req.params.idUser);
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+
+  // For debugging purposes
+  // console.log(' desde ', desde);
+  // return;
+  if (desde == 0 || desde > 0) {
+    if (idUser) {
+      try {
+        let donanteS = await DonanteSeleccionado.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: PeticionDonacion,
+              as: "peticionDonacion",
+              include: [
+                {
+                  model: Medicamento,
+                  as: "medicamento",
+                  include: [
+                    "categoria",
+                    {
+                      model: User,
+                      as: "creador",
+                      where: {
+                        idUser,
+                      },
+                      include: [
+                        "sexos",
+                        {
+                          model: Ciudad,
+                          as: "ciudades",
+                          include: ["paises"],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  model: User,
+                  as: "solicitante",
+                  where: {
+                    idUser,
+                  },
+                  include: [
+                    "sexos",
+                    {
+                      model: Ciudad,
+                      as: "ciudades",
+                      include: ["paises"],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        /*
+        // For debugging
+        console.log('donanteS ', donanteS);
+        console.log('donanteS[0].dataValues.peticionDonacion.solicitante.dataValues.idUser ', donanteS[0].dataValues.peticionDonacion.solicitante.dataValues.idUser);
+        console.log('donanteS[0].dataValues.peticionDonacion ', donanteS[0].dataValues.peticionDonacion);
+        */
+        if(donanteS[0]){
+          if(donanteS[0].dataValues){
+            if(!donanteS[0].dataValues.peticionDonacion){
+              donanteS = [];
+            }
+          }
+        }
+        const cantidadDS = donanteS.length;
+        // console.log('users ', users.length);
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadDS,
+          donanteS,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          ok: false,
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Verificar el idUser y el token",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
     });
   }
 };
