@@ -8,6 +8,7 @@ const User = require("../models/User");
 const { Op } = require("sequelize"); // Sequelize operator.
 const Ciudad = require("../models/Ciudad");
 const Pais = require("../models/Pais");
+const { isBoolean } = require("./CategoriasController");
 
 /*
 ==========================================
@@ -516,6 +517,75 @@ exports.editById = async (req, res) => {
       medicine.descriptionM = descriptionM;
       medicine.inventaryM = inventaryM;
       medicine.idCategoriaF = idCategoriaF;
+
+      medicine.updatedAt = new Date();
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await medicine.save();
+      if (!resultado) return next();
+      return res.status(200).json({
+        ok: true,
+        msg: "Medicamento Actualizado",
+        medicine,
+      });
+    } catch (err) {
+      console.log(err);
+      // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
+      return res.status(500).json({
+        ok: false,
+        msg: "Internal server error",
+      });
+    }
+  } else {
+    return res.status(400).json({
+      ok: false,
+      msg: "Faltan datos por completar. Verificar el token.",
+    });
+  }
+};
+/*
+== TOKEN REQUIRED ==
+==========================================
+Editar medicines por id. PUT /medicine-is-active/:idMedicine  Body (x-www-form-urlencoded) isAvailable
+==========================================
+*/
+
+exports.editByIdisAvailable = async (req, res) => {
+  // Debuggear
+  // console.log('req.body ', req.body);
+
+  // Obtener los datos por destructuring.
+  const idMedicine = req.params.idMedicine;
+  let { isActive } = req.body;
+  console.log('isActive ', isActive);
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  if (isBoolean(isActive) && user ) {
+    try {
+      /* Preguntar si el idQR le pertenece al usuario del token */
+      let lePertenecee = await lePerteneceElToken(
+        user,
+        idMedicine,
+        Medicamento
+      );
+      if (!lePertenecee) {
+        // Accion prohibida
+        return res.status(403).json({
+          ok: false,
+          msg: "No le pertenece ese medicamento",
+        });
+      }
+      /* Buscar la medicamento. */
+      let medicine = await Medicamento.findByPk(idMedicine);
+      // console.log('medicamentos  ', medicine);
+      /* Preguntar si el idQR le pertenece al usuario del token */
+      /*if (medicine.idUsuarioF != user.idUser) {
+        return res.status(400).json({
+          ok: false,
+          msg: "Ese idMedicine no le pertenece",
+        });
+      }*/
+      //Cambiar las medicamentos.
+      medicine.isActive = isActive;
+      console.log('medicine.isActive ', medicine.isActive);
 
       medicine.updatedAt = new Date();
       //Metodo save de sequelize para guardar en la BDD

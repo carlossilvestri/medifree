@@ -33,6 +33,7 @@ exports.register = async (req, res) => {
   }
 
   return res.status(400).json({
+    ok: false,
     msg:
       "Bad Request: Revise los campos body (msjDonacion, idMedicineF, token)",
   });

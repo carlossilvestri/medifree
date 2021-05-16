@@ -54,6 +54,10 @@ const Medicamento = sequelize.define(
     isAvailable: {
       type: Sequelize.BOOLEAN
     },
+    isActive: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: true,
+    },
   },
   { hooks, tableName }
 );

@@ -89,7 +89,7 @@ const dbService = (environment, migrate) => {
     switch (environment) {
       case 'development':
         // Si se descomenta esta linea, borra todos los registros de la base de datos, pero agrega algun campo nuevo a las tablas
-        // await startDev();
+        await startDev();
         break;
       case 'staging':
         await startStage();
@@ -98,7 +98,7 @@ const dbService = (environment, migrate) => {
         await startTest();
         break;
       case 'production':
-        // await startProd();
+         await startProd();
         break;
       default:
         await wrongEnvironment();

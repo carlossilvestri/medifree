@@ -87,6 +87,7 @@ module.exports = () => {
   /* MEDICINES */
   router.post("/medicine", auth, MedicamentosController.register); // Registra un medicamento.
   router.put("/medicine/:idMedicine", auth, MedicamentosController.editById); // Editar un medicamento por Id
+  router.put("/medicine-is-active/:idMedicine", auth, MedicamentosController.editByIdisAvailable); // Editar un medicamento por Id
   router.get("/medicine", MedicamentosController.getAll); // Obtener todos los medicamentos (Paginados, indicando desde).
   router.get("/medicines-by-city", MedicamentosController.getByCityId); // Obtener todos los medicamentos (Paginados, indicando desde) y por cityId.
   router.get("/medicine/:idMedicine", MedicamentosController.getMedicineById); // Obtener los medicamentos por su id

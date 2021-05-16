@@ -80,6 +80,10 @@ const User = sequelize.define('User', {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
+  isActive: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+  },
 }, { hooks, tableName });
 
 // Llaves foraneas.

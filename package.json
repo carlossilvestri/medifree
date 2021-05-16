@@ -58,6 +58,7 @@
     "husky": "^0.14.3",
     "jest": "^24.8.0",
     "nodemon": "^1.17.3",
+    "sequelize-cli": "^6.2.0",
     "shx": "^0.2.2",
     "supertest": "^3.0.0"
   }
