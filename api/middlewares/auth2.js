@@ -36,6 +36,8 @@ exports.verificarTokenDesdeQuery = (req, res, next) => {
     jwt.verify(token, process.env.SEED_JSON_WEB_TOKEN, (err, decoded) => {
         // Si hay algun error del servidor
         if (err) {
+            console.log('err ', err);
+            // console.log('err ', err.error.errors.message);
             // 401 Unauthorized
             return res.status(401).json({
                 ok: false,

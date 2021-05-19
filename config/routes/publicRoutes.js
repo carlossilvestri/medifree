@@ -150,7 +150,7 @@ module.exports = () => {
   ); // Obtener todos los donantes seleccionados por el id del solicitante.
   router.delete(
     "/donante-seleccionado/:idDonanteSeleccionado",
-    auth,
+    auth2.verificarTokenDesdeQuery,
     DonanteSeleccionadoController.delete
   ); // Registra una peticion de donacion.
 

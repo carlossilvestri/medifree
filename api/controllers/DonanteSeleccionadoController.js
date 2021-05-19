@@ -437,12 +437,12 @@ exports.delete = async (req, res, next) => {
   if (idDonanteSeleccionado > 0 && user) {
     try {
       // Buscar el medicamento.
-      const peticionDonacion = await PeticionDonacion.findByPk(idDonanteSeleccionado);
+      /* const donanteS = await DonanteSeleccionado.findByPk(idDonanteSeleccionado);
       // Hay que ver si el usuario logueado es el creador del medicamento.
-      /* Preguntar si el idDonanteSeleccionado le pertenece al usuario del token */
-      let lePertenecee = await lePerteneceElToken(
+       Preguntar si el idDonanteSeleccionado le pertenece al usuario del token */
+      /*let lePertenecee = await lePerteneceElToken(
         user,
-        peticionDonacion.idMedicineF,
+        donanteS.idMedicineF,
         Medicamento
       );
       if (!lePertenecee) {
@@ -451,7 +451,7 @@ exports.delete = async (req, res, next) => {
           ok: false,
           msg: "Acción prohibida, no es el creador del medicamento.",
         });
-      }
+      }*/
       //Eliminar el donanteS
       const resultado = await DonanteSeleccionado.destroy({
         where: {

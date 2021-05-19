@@ -128,7 +128,8 @@ exports.getMedicineByKeyword = async (req, res) => {
           where: {
             nameM: {
               [Op.like]: '%' + nameM + '%',
-            }
+            },
+            isActive: true,
           },
           order: [["createdAt", "DESC"]],
           include: [
@@ -287,11 +288,9 @@ exports.getMedicineByUserId = async (req, res) => {
           offset: desde,
           where: {
             idUsuarioF: user.idUser,
-          },
-          order: [["createdAt", "DESC"]],
-          where: {
             isActive: true,
           },
+          order: [["createdAt", "DESC"]],
           include: [
             {
               model: Categoria,
@@ -365,11 +364,9 @@ exports.getMedicineByCategoryId = async (req, res) => {
           offset: desde,
           where: {
             idCategoriaF: idCategoria,
-          },
-          order: [["createdAt", "DESC"]],
-          where: {
             isActive: true,
           },
+          order: [["createdAt", "DESC"]],
           include: [
             {
               model: Categoria,
