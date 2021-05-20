@@ -520,8 +520,10 @@ exports.editPassword = async (req, res) => {
 exports.getTokenRefreshed = async (req, res) => {
   // Obtener la info del param (idUser).
   const idUser = Number(req.query.idUser);
+  /*
   console.log('idUser ', idUser );
   console.log('req.params.idUser ', req.query.idUser );
+  */
   // Comprobar que no vengan valores vacios.
   if(!idUser){
       return res.status(400).json({

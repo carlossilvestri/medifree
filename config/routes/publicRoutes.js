@@ -165,7 +165,7 @@ module.exports = () => {
   ); // Editar/Agregar una img
 
   /* REFRESACAR TOKEN */
-  router.get("/refresh-token", UserController.getTokenRefreshed); // Obtener usuarios. (Paginados, indicando desde).
+  router.get("/refresh-token", auth2.verificarTokenDesdeQueryLight, UserController.getTokenRefreshed); // Obtener usuarios. (Paginados, indicando desde).
   // TODO create users CRUD.
   /* PRUEBAS */
   router.get("/", (req, res) => {
