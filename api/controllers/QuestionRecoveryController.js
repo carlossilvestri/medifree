@@ -146,7 +146,7 @@ exports.getQRById = async (req, res) => {
 //==========================================
 exports.getTokenByEmailAndAnswers = async (req, res) => {
   // Obtener la info del body (email, r1, r2).
-  const { email, r1, r2 } = req.body;
+  const { email, r1, r2 } = req.query;
 
   // Comprobar que no vengan valores vacios.
   if(!email || !r1 || !r2){
@@ -195,7 +195,7 @@ exports.getTokenByEmailAndAnswers = async (req, res) => {
 //==========================================
 exports.getByEmail = async (req, res) => {
   // Obtener la info del body (email, r1, r2).
-  const { email} = req.body;
+  const { email} = req.query;
 
   // Comprobar que no vengan valores vacios.
   if(!email){

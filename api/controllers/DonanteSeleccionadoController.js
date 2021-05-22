@@ -32,6 +32,29 @@ exports.register = async (req, res) => {
           msg: "Acción prohibida, no es el creador del medicamento.",
         });
       }
+      // Modificar el medicamento. Editarlo para restarle uno al inventario.
+      /* Buscar la medicamento. */
+      let medicine = await Medicamento.findByPk(peticionDonacion.idMedicineF);
+      // Existe el medicamento?
+      if(medicine){
+        // El inventario del medicamento no es 0?
+        if(medicine.inventaryM){
+          // Restarle uno
+          medicine.inventaryM = medicine.inventaryM - 1;
+          await medicine.save(); // Guardar
+        }else{
+          return res.status(403 ).json({
+            ok: false,
+            msg: "Se acabó el inventario del medicamento",
+          });
+        }
+      }else{
+        return res.status(404).json({
+          ok: false,
+          msg: "Medicine was not Found",
+        });
+      }
+      // Crear donante seleccionado.
       const donanteS = await DonanteSeleccionado.create({
         idPDonacionF,
       });
