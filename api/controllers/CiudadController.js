@@ -4,7 +4,7 @@ const {
 } = require('./CategoriasController');
 /*
 ==========================================
-Registrar un ciudad: POST - /ciudad Body: (x-www-form-urlencoded) nameCiudad (string), idPaisF (int)
+Registrar un ciudad: POST - /ciudad Body: (x-www-form-urlencoded) nameCiudad (string), idEstadoF (int)
 ==========================================
 */
 exports.register = async (req, res) => {
@@ -12,13 +12,13 @@ exports.register = async (req, res) => {
         body
     } = req;
     console.log(body);
-    if (body.nameCiudad != '' && body.nameCiudad && body.idPaisF) {
+    if (body.nameCiudad != '' && body.nameCiudad && body.idEstadoF) {
         const validVisible = isBoolean(body.isVisible);
         if (validVisible) {
             try {
                 const ciudad = await Ciudad.create({
                     nameCiudad: body.nameCiudad,
-                    idPaisF: body.idPaisF,
+                    idEstadoF: body.idEstadoF,
                     isVisible: body.isVisible
                 });
                 return res.status(200).json({
@@ -71,7 +71,7 @@ exports.getAll = async (req, res) => {
     }
 }
 // ==========================================
-// Editar un ciudad: PUT /ciudad/:idCiudad Ejm. /ciudad/1 idCiudad: Params. nameCiudad (string), idPaisF (int) Body (x-www-form-urlencoded)
+// Editar un ciudad: PUT /ciudad/:idCiudad Ejm. /ciudad/1 idCiudad: Params. nameCiudad (string), idEstadoF (int) Body (x-www-form-urlencoded)
 // ==========================================
 exports.edit = async (req, res) => {
     /*
@@ -82,14 +82,14 @@ exports.edit = async (req, res) => {
     // Obtener los datos
     const idCiudad = req.params.idCiudad,
         nameCiudad = req.body.nameCiudad,
-        idPaisF = req.body.idPaisF,
+        idEstadoF = req.body.idEstadoF,
         isVisible = req.body.isVisible;
     // Si existen las variables que se necesitan.
     if (idCiudad) {
         if (isBoolean(isVisible)) {
             try {
                 // Validar que no esten vacios los datos.
-                if (nameCiudad != '' && nameCiudad && idPaisF) {
+                if (nameCiudad != '' && nameCiudad && idEstadoF) {
                     const ciudad = await Ciudad.findOne({
                         where: {
                             idCiudad
@@ -97,7 +97,7 @@ exports.edit = async (req, res) => {
                     });
                     //Cambiar el nombre del ciudad:
                     ciudad.nameCiudad = nameCiudad;
-                    ciudad.idPaisF = idPaisF;
+                    ciudad.idEstadoF = idEstadoF;
                     ciudad.updatedAt = new Date();
                     //Metodo save de sequelize para guardar en la BDD
                     const resultado = await ciudad.save();

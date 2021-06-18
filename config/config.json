@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "root",
+    "password": "",
+    "database": "medifree",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "",
+    "database": "medifree",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "u268832824_carlossilvestr",
+    "password": "Kar2La30%",
+    "database": "u268832824_cocina",
+    "host": "sql132.main-hosting.eu",
+    "dialect": "mysql"
+  }
+}

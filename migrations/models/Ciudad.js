@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const Estado = require('./Estado');
+const Pais = require('./Pais');
 const sequelize = require('../../config/database');
 
 const tableName = 'ciudades';
@@ -26,5 +26,5 @@ const Ciudad = sequelize.define('Ciudad', {
     allowNull: false, //El campo no puede quedar vacio
   },
 }, { tableName });
-Ciudad.belongsTo(Estado, {as: 'estado', foreignKey: 'idEstadoF'}); //Para colocar una llave foranea.
+Ciudad.belongsTo(Pais, {as: 'paises', foreignKey: 'idPaisF'}); //Para colocar una llave foranea.
 module.exports = Ciudad;

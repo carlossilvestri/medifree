@@ -5,10 +5,12 @@ const Categoria = require("../models/Categoria");
 // const Ciudad = require("../models/Ciudad");
 const Medicamento = require("../models/Medicamento");
 const User = require("../models/User");
-const { Op } = require("sequelize"); // Sequelize operator.
+const { Op, QueryTypes } = require("sequelize"); // Sequelize operator.
 const Ciudad = require("../models/Ciudad");
+const Estado = require("../models/Estado");
 const Pais = require("../models/Pais");
 const { isBoolean } = require("./CategoriasController");
+const database = require("../../config/database");
 
 /*
 ==========================================
@@ -45,8 +47,7 @@ exports.register = async (req, res) => {
   }
 
   return res.status(400).json({
-    msg:
-      "Bad Request: Verifique los datos nameM, descriptionM, inventaryM y idCategoriaF.",
+    msg: "Bad Request: Verifique los datos nameM, descriptionM, inventaryM y idCategoriaF.",
   });
 };
 // ==========================================
@@ -70,16 +71,20 @@ exports.getAll = async (req, res) => {
           {
             model: User,
             as: "creador",
-            include: ["sexos", 
-            {
-              model: Ciudad,
-              as: "ciudades",
-              include: [ {
-                model: Pais,
-                as: "paises",
-              }]
-            },
-          ],
+            include: [
+              "sexos",
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [
+                  {
+                    model: Estado,
+                    as: "estado",
+                    include: "paises",
+                  },
+                ],
+              },
+            ],
           },
         ],
       });
@@ -116,7 +121,7 @@ exports.getAll = async (req, res) => {
 // ==========================================
 exports.getMedicineByKeyword = async (req, res) => {
   let desde = req.query.desde || 0;
-  const nameM  = req.query.nameM;
+  const nameM = req.query.nameM;
   desde = Number(desde);
   // console.log(req);
   if (desde == 0 || desde > 0) {
@@ -127,7 +132,7 @@ exports.getMedicineByKeyword = async (req, res) => {
           offset: desde,
           where: {
             nameM: {
-              [Op.like]: '%' + nameM + '%',
+              [Op.like]: "%" + nameM + "%",
             },
             isActive: true,
           },
@@ -140,16 +145,20 @@ exports.getMedicineByKeyword = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["sexos", 
-              {
-                model: Ciudad,
-                as: "ciudades",
-                include: [ {
-                  model: Pais,
-                  as: "paises",
-                }]
-              },
-            ],
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         });
@@ -190,11 +199,103 @@ exports.getMedicineByKeyword = async (req, res) => {
   }
 };
 // ==========================================
+// Obtiene todos los medicamentos en general: GET /medicine-by-keyword-and-by-state ?desde=0
+// ==========================================
+exports.getMedicineByKeywordAndByState = async (req, res) => {
+  let desde = req.query.desde || 0;
+  const nameM = req.query.nameM;
+  const idEstado = req.query.idEstado || 0;
+  desde = Number(desde);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (nameM && idEstado) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            nameM: {
+              [Op.like]: "%" + nameM + "%",
+            },
+            isActive: true,
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              required: true,
+              as: "categoria",
+            },
+            {
+              model: User,
+              required: true,
+              as: "creador",
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  required: true,
+                  where: {
+                    idEstadoF: idEstado
+                  },
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        // For debugging.
+        // console.log(JSON.stringify(medicines));
+        // let medicineFilter = medicines.filter((medicine) => medicine.creador  );
+        if (!medicines ) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            medicines: [],
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe ingresar un nameM y un idEstado",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
 // Obtiene todos los medicamentos en general: GET /medicines-by-city ?desde=0 Body: idCiudad
 // ==========================================
 exports.getByCityId = async (req, res) => {
   let desde = req.query.desde || 0;
-  let idCiudad  = req.query.idCiudad || 0;
+  let idCiudad = req.query.idCiudad || 0;
   desde = Number(desde);
   idCiudad = Number(idCiudad);
   // console.log(req);
@@ -223,16 +324,20 @@ exports.getByCityId = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["sexos", 
-              {
-                model: Ciudad,
-                as: "ciudades",
-                include: [ {
-                  model: Pais,
-                  as: "paises",
-                }]
-              },
-            ],
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         });
@@ -271,6 +376,299 @@ exports.getByCityId = async (req, res) => {
     });
   }
 };
+
+// ==========================================
+// Obtiene todos los medicamentos en general: GET /medicines-by-state ?desde=0 Body: idEstado
+// ==========================================
+exports.getByStateId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  let idEstado = req.query.idEstado || 0;
+  desde = Number(desde);
+  idEstado = Number(idEstado);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idEstado) {
+      try {
+        /*
+        // Consulta personalizada por si es necesario.
+        let consulta = `
+        SELECT
+          medicamentos.*, 
+            FROM
+              medicamentos
+              INNER JOIN
+              users
+              ON 
+                medicamentos.idUsuarioF = users.idUser
+              INNER JOIN
+              ciudades
+              ON 
+                users.idCiudadF = ciudades.idCiudad
+              INNER JOIN
+              estado
+              ON 
+                ciudades.idEstadoF = estado.idEstado
+            WHERE
+              estado.idEstado = ${idEstado}
+            ORDER BY
+              medicamentos.createdAt DESC
+            LIMIT ${desde}, 10
+        `;
+        const medicines = await database.query(consulta, {
+          type: QueryTypes.SELECT,
+        });
+        */
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+          },
+          include: [
+            {
+              model: Categoria,
+              required: true,
+              as: "categoria",
+            },
+            {
+              model: User,
+              required: true,
+              as: "creador",
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  required: true,
+                  as: "ciudades",
+                  where: {
+                    idEstadoF: idEstado,
+                  },
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        // For debugging.
+        // console.log(JSON.stringify(medicines));
+        // const medicineFilter = medicines.filter((medicine) => medicine.creador  );
+        // console.log("medicineFilter ", JSON.stringify(medicineFilter));
+
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe enviar un idCiudad",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicamentos en general: GET /medicines-by-city-and-category ?desde=0 Body: idCiudad
+// ==========================================
+exports.getByCityIdAndCategoryId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  let idCiudad = req.query.idCiudad || 0;
+  let idCategoriaF = req.query.idCategoriaF || 0;
+  desde = Number(desde);
+  idCiudad = Number(idCiudad);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idCiudad && idCategoriaF) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+            idCategoriaF
+          },
+          include: [
+            {
+              model: Categoria,
+              required: true,
+              as: "categoria",
+            },
+            {
+              model: User,
+              required: true,
+              as: "creador",
+              where: {
+                idCiudadF: idCiudad,
+              },
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe enviar un idCiudad && idCategoriaF",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicamentos en general: GET /medicines-by-city-and-category ?desde=0 Body: idCiudad
+// ==========================================
+exports.getByStateIdAndCategoryId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  let idEstadoF = req.query.idEstadoF || 0;
+  let idCategoriaF = req.query.idCategoriaF || 0;
+  desde = Number(desde);
+  idEstadoF = Number(idEstadoF);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idEstadoF && idCategoriaF) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+            idCategoriaF
+          },
+          include: [
+            {
+              model: Categoria,
+              required: true,
+              as: "categoria",
+            },
+            {
+              model: User,
+              required: true,
+              as: "creador",
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  required: true,
+                  where: {
+                    idCiudadF: idCiudad,
+                  },
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe enviar un idCiudad && idCategoriaF",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
 // ==========================================
 // Obtiene todos los medicines: GET /medicine-by-user-id?desde=0&token= == TOKEN REQUIRED ==
 // ==========================================
@@ -299,16 +697,20 @@ exports.getMedicineByUserId = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["sexos", 
-              {
-                model: Ciudad,
-                as: "ciudades",
-                include: [ {
-                  model: Pais,
-                  as: "paises",
-                }]
-              },
-            ],
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         });
@@ -375,16 +777,20 @@ exports.getMedicineByCategoryId = async (req, res) => {
             {
               model: User,
               as: "creador",
-              include: ["sexos", 
-              {
-                model: Ciudad,
-                as: "ciudades",
-                include: [ {
-                  model: Pais,
-                  as: "paises",
-                }]
-              },
-            ],
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
             },
           ],
         });
@@ -441,16 +847,20 @@ exports.getMedicineById = async (req, res) => {
           {
             model: User,
             as: "creador",
-            include: ["sexos", 
-            {
-              model: Ciudad,
-              as: "ciudades",
-              include: [ {
-                model: Pais,
-                as: "paises",
-              }]
-            },
-          ],
+            include: [
+              "sexos",
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [
+                  {
+                    model: Estado,
+                    as: "estado",
+                    include: "paises",
+                  },
+                ],
+              },
+            ],
           },
         ],
       });
@@ -494,7 +904,7 @@ exports.editById = async (req, res) => {
   const { nameM, descriptionM, inventaryM, idCategoriaF } = req.body;
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
   if (nameM && descriptionM && idCategoriaF && user) {
-    if(inventaryM){
+    if (inventaryM) {
       try {
         /* Preguntar si el idQR le pertenece al usuario del token */
         let lePertenecee = await lePerteneceElToken(
@@ -524,7 +934,7 @@ exports.editById = async (req, res) => {
         medicine.descriptionM = descriptionM;
         medicine.inventaryM = inventaryM;
         medicine.idCategoriaF = idCategoriaF;
-  
+
         medicine.updatedAt = new Date();
         //Metodo save de sequelize para guardar en la BDD
         const resultado = await medicine.save();
@@ -542,7 +952,7 @@ exports.editById = async (req, res) => {
           msg: "Internal server error",
         });
       }
-    }else{
+    } else {
       return res.status(404).json({
         ok: false,
         msg: "El inventario no puede ser 0, o quedar vacío.",
@@ -569,9 +979,9 @@ exports.editByIdisAvailable = async (req, res) => {
   // Obtener los datos por destructuring.
   const idMedicine = req.params.idMedicine;
   let { isActive } = req.body;
-  console.log('isActive ', isActive);
+  console.log("isActive ", isActive);
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
-  if (isBoolean(isActive) && user ) {
+  if (isBoolean(isActive) && user) {
     try {
       /* Preguntar si el idQR le pertenece al usuario del token */
       let lePertenecee = await lePerteneceElToken(
@@ -598,7 +1008,7 @@ exports.editByIdisAvailable = async (req, res) => {
       }*/
       //Cambiar las medicamentos.
       medicine.isActive = isActive;
-      console.log('medicine.isActive ', medicine.isActive);
+      console.log("medicine.isActive ", medicine.isActive);
 
       medicine.updatedAt = new Date();
       //Metodo save de sequelize para guardar en la BDD

@@ -90,6 +90,7 @@ module.exports = () => {
   router.put("/medicine-is-active/:idMedicine", auth, MedicamentosController.editByIdisAvailable); // Editar un medicamento por Id
   router.get("/medicine", MedicamentosController.getAll); // Obtener todos los medicamentos (Paginados, indicando desde).
   router.get("/medicines-by-city", MedicamentosController.getByCityId); // Obtener todos los medicamentos (Paginados, indicando desde) y por cityId.
+  router.get("/medicines-by-state", MedicamentosController.getByStateId); // Obtener todos los medicamentos (Paginados, indicando desde) y por idEstado.
   router.get("/medicine/:idMedicine", MedicamentosController.getMedicineById); // Obtener los medicamentos por su id
   router.get(
     "/medicine-by-user-id",
@@ -101,8 +102,16 @@ module.exports = () => {
     MedicamentosController.getMedicineByCategoryId
   ); // Obtener los medicamentos del usuario del token.
   router.get(
+    "/medicines-by-city-and-category",
+    MedicamentosController.getByCityIdAndCategoryId
+  ); // Obtener los medicamentos del usuario del token.
+  router.get(
     "/medicine-by-keyword",
     MedicamentosController.getMedicineByKeyword
+  ); // Buscar los medicamentos por su nombre (Barra de busqueda).
+  router.get(
+    "/medicine-by-keyword-and-by-state",
+    MedicamentosController.getMedicineByKeywordAndByState
   ); // Buscar los medicamentos por su nombre (Barra de busqueda).
   router.delete("/medicine/:idMedicine", auth2.verificarTokenDesdeQuery, MedicamentosController.delete); // Borrar un QuestionRecovery por ID.
 
