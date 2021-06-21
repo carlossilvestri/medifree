@@ -117,7 +117,7 @@ exports.getAll = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los medicamentos en general: GET /medicine-by-keyword ?desde=0
+// Obtiene todos los medicamentos en general sin importar el estado o la ciudad pero por palabra clave: GET /medicine-by-keyword ?desde=0
 // ==========================================
 exports.getMedicineByKeyword = async (req, res) => {
   let desde = req.query.desde || 0;
@@ -239,6 +239,98 @@ exports.getMedicineByKeywordAndByState = async (req, res) => {
                   where: {
                     idEstadoF: idEstado
                   },
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        // For debugging.
+        // console.log(JSON.stringify(medicines));
+        // let medicineFilter = medicines.filter((medicine) => medicine.creador  );
+        if (!medicines ) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            medicines: [],
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe ingresar un nameM y un idEstado",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicamentos en general: GET /medicine-by-keyword-and-by-city ?desde=0
+// ==========================================
+exports.getMedicineByKeywordAndByCity = async (req, res) => {
+  let desde = req.query.desde || 0;
+  const nameM = req.query.nameM;
+  const idCiudadF = req.query.idCiudadF || 0;
+  desde = Number(desde);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (nameM && idCiudadF) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            nameM: {
+              [Op.like]: "%" + nameM + "%",
+            },
+            isActive: true,
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              required: true,
+              as: "categoria",
+            },
+            {
+              model: User,
+              required: true,
+              as: "creador",
+              where: {
+                idCiudadF
+              },
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  required: true,
                   include: [
                     {
                       model: Estado,

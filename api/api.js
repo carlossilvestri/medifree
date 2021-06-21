@@ -24,7 +24,10 @@ const environment = process.env.NODE_ENV;
  * express application
  */
 const app = express();
-
+//Habilitar Pug como Template Engine.
+app.set('view engine', 'pug');
+//Donde cargar los archivos estaticos:
+app.use(express.static('views'));
 const DB = dbService(environment, config.migrate).start();
 
 // CORS

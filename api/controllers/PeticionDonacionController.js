@@ -1,5 +1,6 @@
 const { lePerteneceElToken } = require("../functions/function");
 const Ciudad = require("../models/Ciudad");
+const Estado = require("../models/Estado");
 const Gender = require("../models/Gender");
 const Medicamento = require("../models/Medicamento");
 const PeticionDonacion = require("../models/PeticionDonacion");
@@ -58,17 +59,26 @@ exports.getAll = async (req, res) => {
           {
             model: Medicamento,
             as: "medicamento",
+            required: true,
             include: [
               "categoria",
               {
                 model: User,
                 as: "creador",
+                required: true,
                 include: [
                   "sexos",
                   {
                     model: Ciudad,
                     as: "ciudades",
-                    include: ["paises"],
+                    required: true,
+                    include: [
+                      {
+                        model: Estado,
+                        as: "estado",
+                        include: "paises",
+                      },
+                    ],
                   },
                 ],
               },
@@ -82,7 +92,7 @@ exports.getAll = async (req, res) => {
               {
                 model: Ciudad,
                 as: "ciudades",
-                include: ["paises"],
+                include: ["estado"],
               },
             ],
           },
@@ -135,7 +145,14 @@ exports.getById = async (req, res) => {
                   {
                     model: Ciudad,
                     as: "ciudades",
-                    include: ["paises"],
+                    required: true,
+                    include: [
+                      {
+                        model: Estado,
+                        as: "estado",
+                        include: "paises",
+                      },
+                    ],
                   },
                 ],
               },
@@ -213,7 +230,14 @@ exports.getPDOfDonator = async (req, res) => {
                   {
                     model: Ciudad,
                     as: "ciudades",
-                    include: ["paises"],
+                    required: true,
+                    include: [
+                      {
+                        model: Estado,
+                        as: "estado",
+                        include: "paises",
+                      },
+                    ],
                   },
                 ],
               },
@@ -227,7 +251,14 @@ exports.getPDOfDonator = async (req, res) => {
               {
                 model: Ciudad,
                 as: "ciudades",
-                include: ["paises"],
+                required: true,
+                include: [
+                  {
+                    model: Estado,
+                    as: "estado",
+                    include: "paises",
+                  },
+                ],
               },
             ],
           },
@@ -287,7 +318,14 @@ exports.getPDSolicitante = async (req, res) => {
                   {
                     model: Ciudad,
                     as: "ciudades",
-                    include: ["paises"],
+                    required: true,
+                    include: [
+                      {
+                        model: Estado,
+                        as: "estado",
+                        include: "paises",
+                      },
+                    ],
                   },
                 ],
               },
@@ -304,7 +342,14 @@ exports.getPDSolicitante = async (req, res) => {
               {
                 model: Ciudad,
                 as: "ciudades",
-                include: ["paises"],
+                required: true,
+                include: [
+                  {
+                    model: Estado,
+                    as: "estado",
+                    include: "paises",
+                  },
+                ],
               },
             ],
           },

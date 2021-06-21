@@ -1,5 +1,6 @@
 const { lePerteneceElToken } = require('../functions/function');
 const Ciudad = require('../models/Ciudad');
+const Estado = require('../models/Estado');
 const Gender = require('../models/Gender');
 const User = require('../models/User');
 const authService = require('../services/auth.service');
@@ -41,14 +42,6 @@ exports.register = async (req, res) => {
   password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
   */
   // Validar los datos
-  // Que existan los datos obligatorios.
-  if (password && password2 && emailU && namesU && lastNamesU && identificationU && idCiudadF && dateOfBirth && directionU && idGenderF && tlf1) {
-    /*
-    El usuario debe enviar la clave y la clave repetida para confirmar su clave por seguridad.
-    Clave = password
-    Clave repetida = password2
-    */
-    if (password === password2) {
       try {
         let user;
         // Si el usuario ingreso un tlf adicional.
@@ -118,19 +111,6 @@ exports.register = async (req, res) => {
           msg: 'Internal server error'
         });
       }
-    } else {
-      return res.status(400).json({
-        ok: false,
-        msg: 'Bad Request: Passwords don\'t match'
-      });
-    }
-
-  } else {
-    return res.status(400).json({
-      ok: false,
-      msg: 'Faltan datos por completar. (password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)'
-    });
-  }
 };
 /*
 ==========================================
@@ -151,10 +131,18 @@ exports.login = async (req, res) => {
             emailU,
           },
           //include: ['ciudades', 'sexos']
-          include: [{
+          include: [
+            {
               model: Ciudad,
-              as: 'ciudades',
-              include: 'paises'
+              as: "ciudades",
+              required: true,
+              include: [
+                {
+                  model: Estado,
+                  as: "estado",
+                  include: "paises",
+                },
+              ],
             },
             {
               model: Gender,
@@ -257,10 +245,18 @@ exports.getAll = async (req, res) => {
         order: [
           ['createdAt', 'DESC']
         ],
-        include: [{
+        include: [
+          {
             model: Ciudad,
-            as: 'ciudades',
-            include: 'paises'
+            as: "ciudades",
+            required: true,
+            include: [
+              {
+                model: Estado,
+                as: "estado",
+                include: "paises",
+              },
+            ],
           },
           {
             model: Gender,
@@ -310,10 +306,18 @@ exports.getUserById = async (req, res) => {
   // Encontra el user
   try {
     let user = await User.findByPk(idUser, {
-      include: [{
+      include: [
+        {
           model: Ciudad,
-          as: 'ciudades',
-          include: 'paises'
+          as: "ciudades",
+          required: true,
+          include: [
+            {
+              model: Estado,
+              as: "estado",
+              include: "paises",
+            },
+          ],
         },
         {
           model: Gender,
@@ -385,14 +389,11 @@ exports.editUserById = async (req, res) => {
   password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
   */
   // Validar los datos
-  // Que existan los datos obligatorios.
-  if (namesU && lastNamesU && identificationU && idCiudadF && dateOfBirth && directionU && idGenderF && tlf1) {
     /*
     El usuario debe enviar la clave y la clave repetida para confirmar su clave por seguridad.
     Clave = password
     Clave repetida = password2
     */
-    // Si el usuario envia su clave, verificar.
     try {
       let user = await User.findByPk(idUser);
       // console.log('USUARIO  ', user);
@@ -436,12 +437,6 @@ exports.editUserById = async (req, res) => {
         msg: 'Internal server error'
       });
     }
-  } else {
-    return res.status(400).json({
-      ok: false,
-      msg: 'Faltan datos por completar. (password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)'
-    });
-  }
 }
 /*
 ==========================================

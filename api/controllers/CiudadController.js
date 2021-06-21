@@ -1,4 +1,5 @@
 const Ciudad = require('../models/Ciudad');
+const Estado = require('../models/Estado');
 const {
     isBoolean
 } = require('./CategoriasController');
@@ -70,6 +71,48 @@ exports.getAll = async (req, res) => {
         });
     }
 }
+// ==========================================
+// Obtiene todos las ciudades de un estado en especifico: GET /ciudad-por-idestadof?idEstadoF=0
+// ==========================================
+exports.getCityByStateId = async (req, res) => {
+    let idEstadoF = req.query.idEstadoF || 0;
+    // console.log(req);
+    if (idEstadoF) {
+      try {
+        const ciudades = await Ciudad.findAll({
+          order: [["nameCiudad", "ASC"]], // Ordenar por orden alfabetico los nombres de los ciudades.
+          where: {
+            isVisible: true,
+            idEstadoF,
+          },
+          include: [
+            {
+              model: Estado,
+              required: true,
+              as: "estado",
+            },
+          ],
+        });
+        const cantidadEstados = ciudades.length;
+        return res.status(200).json({
+          ok: true,
+          cantidadEstados,
+          ciudades,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe enviar un idEstadoF",
+      });
+    }
+  };
 // ==========================================
 // Editar un ciudad: PUT /ciudad/:idCiudad Ejm. /ciudad/1 idCiudad: Params. nameCiudad (string), idEstadoF (int) Body (x-www-form-urlencoded)
 // ==========================================

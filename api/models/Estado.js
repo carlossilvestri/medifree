@@ -26,6 +26,7 @@ const Estado = sequelize.define(
     isVisible: {
       type: Sequelize.BOOLEAN,
       allowNull: false, //El campo no puede quedar vacio
+      defaultValue: true,
     },
   },
   { tableName }

@@ -6,6 +6,10 @@ const DonanteSeleccionado = require("../models/DonanteSeleccionado");
 const User = require("../models/User");
 const { isBoolean } = require("./CategoriasController");
 const PeticionDonacion = require("../models/PeticionDonacion");
+const enviarEmail = require("../handlers/emails");
+const Estado = require("../models/Estado");
+//Extraer valores de variables.env
+require('dotenv').config({ path: 'variables.env' });
 /*
 ==========================================
 Registrar un donante-seleccionado: POST - /donante-seleccionado Body: (x-www-form-urlencoded) idPDonacionF
@@ -36,19 +40,19 @@ exports.register = async (req, res) => {
       /* Buscar la medicamento. */
       let medicine = await Medicamento.findByPk(peticionDonacion.idMedicineF);
       // Existe el medicamento?
-      if(medicine){
+      if (medicine) {
         // El inventario del medicamento no es 0?
-        if(medicine.inventaryM){
+        if (medicine.inventaryM) {
           // Restarle uno
           medicine.inventaryM = medicine.inventaryM - 1;
           await medicine.save(); // Guardar
-        }else{
-          return res.status(403 ).json({
+        } else {
+          return res.status(403).json({
             ok: false,
             msg: "Se acabó el inventario del medicamento",
           });
         }
-      }else{
+      } else {
         return res.status(404).json({
           ok: false,
           msg: "Medicine was not Found",
@@ -58,6 +62,21 @@ exports.register = async (req, res) => {
       const donanteS = await DonanteSeleccionado.create({
         idPDonacionF,
       });
+      if (donanteS) {
+        // Enviar email de notificacion al usuario de que fue seleccionado para recibir la donacion del medicamento.
+        const hostingFrontend = process.env.HOSTING_FRONTEND;
+        // Obtener los datos del usuario reciobidor de la donacion peticionDonacion.idUsuarioF
+        const usuarioRecibidorDelMedicamento = await User.findByPk(peticionDonacion.idUsuarioF);
+        //Envia el correo.
+        await enviarEmail.enviar({
+          usuario: usuarioRecibidorDelMedicamento,
+          subject:
+            "¡Felicidades! Has sido seleccionado/a para recibir una donación de medicamentos.",
+          archivo: "notificacionDonanteS",
+          medicine,
+          hostingFrontend
+        });
+      }
       return res.status(200).json({
         ok: true,
         donanteS,
@@ -110,7 +129,14 @@ exports.getAll = async (req, res) => {
                       {
                         model: Ciudad,
                         as: "ciudades",
-                        include: ["paises"],
+                        required: true,
+                        include: [
+                          {
+                            model: Estado,
+                            as: "estado",
+                            include: "paises",
+                          },
+                        ],
                       },
                     ],
                   },
@@ -124,7 +150,14 @@ exports.getAll = async (req, res) => {
                   {
                     model: Ciudad,
                     as: "ciudades",
-                    include: ["paises"],
+                    required: true,
+                    include: [
+                      {
+                        model: Estado,
+                        as: "estado",
+                        include: "paises",
+                      },
+                    ],
                   },
                 ],
               },
@@ -167,45 +200,59 @@ exports.getById = async (req, res) => {
       const donanteS = await DonanteSeleccionado.findByPk(
         idDonanteSeleccionado,
         {
-            include: [
+          include: [
+            {
+              model: PeticionDonacion,
+              as: "peticionDonacion",
+              include: [
                 {
-                  model: PeticionDonacion,
-                  as: "peticionDonacion",
+                  model: Medicamento,
+                  as: "medicamento",
                   include: [
-                    {
-                      model: Medicamento,
-                      as: "medicamento",
-                      include: [
-                        "categoria",
-                        {
-                          model: User,
-                          as: "creador",
-                          include: [
-                            "sexos",
-                            {
-                              model: Ciudad,
-                              as: "ciudades",
-                              include: ["paises"],
-                            },
-                          ],
-                        },
-                      ],
-                    },
+                    "categoria",
                     {
                       model: User,
-                      as: "solicitante",
+                      as: "creador",
                       include: [
                         "sexos",
                         {
                           model: Ciudad,
                           as: "ciudades",
-                          include: ["paises"],
+                          required: true,
+                          include: [
+                            {
+                              model: Estado,
+                              as: "estado",
+                              include: "paises",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  model: User,
+                  as: "solicitante",
+                  include: [
+                    "sexos",
+                    {
+                      model: Ciudad,
+                      as: "ciudades",
+                      required: true,
+                      include: [
+                        {
+                          model: Estado,
+                          as: "estado",
+                          include: "paises",
                         },
                       ],
                     },
                   ],
                 },
               ],
+            },
+          ],
         }
       );
       if (!donanteS) {
@@ -236,7 +283,7 @@ exports.getById = async (req, res) => {
 // ==========================================
 // Obtiene una peticion de donacion especifica por su Id: GET /donante-seleccionado-creador/:idUser
 // ==========================================
-exports.getByUserCreadorId= async (req, res) => {
+exports.getByUserCreadorId = async (req, res) => {
   // Obtener los datos por destructuring.
   const idUser = Number(req.params.idUser);
   let desde = req.query.desde || 0;
@@ -265,15 +312,22 @@ exports.getByUserCreadorId= async (req, res) => {
                     {
                       model: User,
                       as: "creador",
-                       where: {
-                         idUser,
-                       },
+                      where: {
+                        idUser,
+                      },
                       include: [
                         "sexos",
                         {
                           model: Ciudad,
                           as: "ciudades",
-                          include: ["paises"],
+                          required: true,
+                          include: [
+                            {
+                              model: Estado,
+                              as: "estado",
+                              include: "paises",
+                            },
+                          ],
                         },
                       ],
                     },
@@ -300,9 +354,11 @@ exports.getByUserCreadorId= async (req, res) => {
         console.log('donanteS ', donanteS);
         console.log('donanteS[0].dataValues.peticionDonacion.dataValues.medicamento ', donanteS[0].dataValues.peticionDonacion.dataValues.medicamento);
         */
-        if(donanteS[0]){
-          if(donanteS[0].dataValues){
-            if(!donanteS[0].dataValues.peticionDonacion.dataValues.medicamento){
+        if (donanteS[0]) {
+          if (donanteS[0].dataValues) {
+            if (
+              !donanteS[0].dataValues.peticionDonacion.dataValues.medicamento
+            ) {
               donanteS = [];
             }
           }
@@ -340,7 +396,7 @@ exports.getByUserCreadorId= async (req, res) => {
 // ==========================================
 // Obtiene una peticion de donacion especifica por su Id: GET /donante-seleccionado-solicitante/:idUser
 // ==========================================
-exports.getByUserSolicitanteId= async (req, res) => {
+exports.getByUserSolicitanteId = async (req, res) => {
   // Obtener los datos por destructuring.
   const idUser = Number(req.params.idUser);
   let desde = req.query.desde || 0;
@@ -377,7 +433,14 @@ exports.getByUserSolicitanteId= async (req, res) => {
                         {
                           model: Ciudad,
                           as: "ciudades",
-                          include: ["paises"],
+                          required: true,
+                          include: [
+                            {
+                              model: Estado,
+                              as: "estado",
+                              include: "paises",
+                            },
+                          ],
                         },
                       ],
                     },
@@ -408,9 +471,9 @@ exports.getByUserSolicitanteId= async (req, res) => {
         console.log('donanteS[0].dataValues.peticionDonacion.solicitante.dataValues.idUser ', donanteS[0].dataValues.peticionDonacion.solicitante.dataValues.idUser);
         console.log('donanteS[0].dataValues.peticionDonacion ', donanteS[0].dataValues.peticionDonacion);
         */
-        if(donanteS[0]){
-          if(donanteS[0].dataValues){
-            if(!donanteS[0].dataValues.peticionDonacion){
+        if (donanteS[0]) {
+          if (donanteS[0].dataValues) {
+            if (!donanteS[0].dataValues.peticionDonacion) {
               donanteS = [];
             }
           }

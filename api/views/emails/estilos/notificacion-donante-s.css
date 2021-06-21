@@ -1,0 +1,147 @@
+body {
+  font-family: "Poppins", "Source Sans Pro", -apple-system, BlinkMacSystemFont,
+ "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  width: 100%;
+}
+
+.cont-fondo-color {
+  background-color: #9fcdf3;
+  width: 100%;
+  height: 140px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.cont-fondo-color img {
+  width: 180px;
+}
+
+.cont-main {
+  margin: 20px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  font-family: "Poppins", "Source Sans Pro", -apple-system, BlinkMacSystemFont,
+ "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (max-width: 720px) {
+  .cont-main {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    text-align: center;
+  }
+}
+
+.cont-main .cont-img {
+  width: 200px;
+}
+
+@media (max-width: 720px) {
+  .cont-main .cont-img img {
+    width: 90px;
+  }
+}
+
+.cont-main .cont-main-text {
+  margin-left: 40px;
+}
+
+@media (max-width: 720px) {
+  .cont-main .cont-main-text {
+    margin: 0;
+  }
+}
+
+.cont-main .cont-main-text h1 {
+  color: #2f9bf7;
+  font-size: 40px;
+  font-weight: bold;
+}
+
+@media (max-width: 720px) {
+  .cont-main .cont-main-text h1 {
+    font-size: 30px;
+  }
+}
+
+.cont-main .cont-main-text h3 {
+  color: #4f4f4f;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+@media (max-width: 720px) {
+  .cont-main .cont-main-text h3 {
+    font-size: 20px;
+  }
+}
+
+.cont-img-complemento {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  margin: 0 20px 20px 20px;
+}
+
+@media (max-width: 720px) {
+  .cont-img-complemento img {
+    width: 250px;
+  }
+}
+
+.cont-footer {
+  width: 100%;
+  height: 66px;
+  background-color: #333333;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .cont-footer {
+    width: 100%;
+  }
+}
+
+.cont-footer .div-texts {
+  width: 406px;
+  text-align: center;
+}
+
+.cont-footer .div-texts p {
+  line-height: 17px;
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+}
+/*# sourceMappingURL=notificacion-donante-s.css.map */

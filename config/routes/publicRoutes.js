@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const PaisController = require("../../api/controllers/PaisController");
 const CiudadController = require("../../api/controllers/CiudadController");
+const EstadoController = require("../../api/controllers/EstadoController");
 const CategoriasController = require("../../api/controllers/CategoriasController");
 const GenderController = require("../../api/controllers/GenderController");
 const UserController = require("../../api/controllers/UserController");
@@ -17,6 +18,8 @@ const auth = require("../../api/middlewares/auth");
 const auth2 = require("../../api/middlewares/auth2");
 // Swagger
 const swaggerUI = require("swagger-ui-express");
+const { validarTodosLosCamposDelEstado, validarPatchDelEstado } = require("../../api/middlewares/stateValidation");
+const { validateNewUser, validateEditUser } = require("../../api/middlewares/userValidation");
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -43,8 +46,17 @@ module.exports = () => {
   /* CIUDADES */
   router.post("/ciudad", CiudadController.register); // Registra nuevos ciudades.
   router.get("/ciudad", CiudadController.getAll); // Obtener ciudades.
+  router.get("/ciudad-por-idestadof", CiudadController.getCityByStateId); // Obtener ciudades segun el estado id.
   router.put("/ciudad/:idCiudad", CiudadController.edit); // Editar ciudades.
   router.delete("/ciudad/:idCiudad", CiudadController.delete); // Borrar ciudades por ID.
+
+    /* ESTADOS */
+  router.post("/estado", EstadoController.register); // Registra nuevos estados.
+  router.get("/estado", EstadoController.getAll); // Obtener estados.
+  router.get("/states-by-country", EstadoController.getStateByPaisF); // Obtener estados.
+  router.put("/estado/:idEstado", validarTodosLosCamposDelEstado, EstadoController.edit); // Editar estados.
+  router.patch("/estado/:idEstado", validarPatchDelEstado, EstadoController.habilitarODeshabilitarUnEstado); // Habilitar estados.
+  router.delete("/estado/:idEstado", EstadoController.delete); // Borrar estados por ID.
 
   /* CATEGORIAS */
   router.post("/categoria", CategoriasController.register); // Registra nuevas categorias.
@@ -59,11 +71,11 @@ module.exports = () => {
   router.delete("/gender/:idGender", GenderController.delete); // Borrar un gender por ID.
 
   /* USUARIOS */
-  router.post("/user", UserController.register); // Registra nuevos usuarios.
+  router.post("/user", validateNewUser, UserController.register); // Registra nuevos usuarios.
   router.post("/login", UserController.login); // Login para el usuario.
   router.get("/user", UserController.getAll); // Obtener usuarios. (Paginados, indicando desde).
   router.get("/user/:idUser", UserController.getUserById); // Obtener usuario por id.
-  router.put("/user/:idUser", auth, UserController.editUserById); // Editar usuarios (Todo excepto email).
+  router.put("/user/:idUser", [auth, validateEditUser], UserController.editUserById); // Editar usuarios (Todo excepto email).
   router.put(
     "/user/modify-password/password",
     auth,
@@ -113,6 +125,10 @@ module.exports = () => {
     "/medicine-by-keyword-and-by-state",
     MedicamentosController.getMedicineByKeywordAndByState
   ); // Buscar los medicamentos por su nombre (Barra de busqueda).
+  router.get(
+    "/medicine-by-keyword-and-by-city",
+    MedicamentosController.getMedicineByKeywordAndByCity
+  ); // Buscar los medicamentos por su nombre (Barra de busqueda).
   router.delete("/medicine/:idMedicine", auth2.verificarTokenDesdeQuery, MedicamentosController.delete); // Borrar un QuestionRecovery por ID.
 
   /* PETICION DONACION */
@@ -136,6 +152,11 @@ module.exports = () => {
     "/peticion-donacion/:idPDonacion",
     auth,
     PeticionDonacionController.editById
+  ); // Editar una peticion de donacion, es necesario el token de quien la creo.
+  router.delete(
+    "/peticion-donacion/:idPDonacion",
+    auth,
+    PeticionDonacionController.delete
   ); // Editar una peticion de donacion, es necesario el token de quien la creo.
 
   /* DONANTES SELECCIONADOS */
