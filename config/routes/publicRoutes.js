@@ -104,6 +104,7 @@ module.exports = () => {
   router.get("/medicines-by-city", MedicamentosController.getByCityId); // Obtener todos los medicamentos (Paginados, indicando desde) y por cityId.
   router.get("/medicines-by-state", MedicamentosController.getByStateId); // Obtener todos los medicamentos (Paginados, indicando desde) y por idEstado.
   router.get("/medicine/:idMedicine", MedicamentosController.getMedicineById); // Obtener los medicamentos por su id
+  router.get("/medicines-by-country", MedicamentosController.getByCountryId); // Obtener los medicamentos por country id
   router.get(
     "/medicine-by-user-id",
     auth2.verificarTokenDesdeQuery,

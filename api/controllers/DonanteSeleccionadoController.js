@@ -76,6 +76,9 @@ exports.register = async (req, res) => {
           medicine,
           hostingFrontend
         });
+        // Cambiar el estado a isSelected true en la peticion donacion para que salga el aviso en la pagina de medifree.
+        peticionDonacion.isSelected = true;
+        await peticionDonacion.save();
       }
       return res.status(200).json({
         ok: true,
@@ -341,7 +344,14 @@ exports.getByUserCreadorId = async (req, res) => {
                     {
                       model: Ciudad,
                       as: "ciudades",
-                      include: ["paises"],
+                      required: true,
+                      include: [
+                        {
+                          model: Estado,
+                          as: "estado",
+                          include: "paises",
+                        },
+                      ],
                     },
                   ],
                 },

@@ -589,6 +589,103 @@ exports.getByStateId = async (req, res) => {
   }
 };
 // ==========================================
+// Obtiene todos los medicamentos en general: GET /medicines-by-country ?desde=0 Body: idPais
+// ==========================================
+exports.getByCountryId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  let idPais = req.query.idPais || 0;
+  desde = Number(desde);
+  idPais = Number(idPais);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idPais) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          order: [["createdAt", "DESC"]],
+          where: {
+            isActive: true,
+          },
+          include: [
+            {
+              model: Categoria,
+              required: true,
+              as: "categoria",
+            },
+            {
+              model: User,
+              required: true,
+              as: "creador",
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  required: true,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      required: true,
+                      as: "estado",
+                      where: {
+                        idPaisF: idPais
+                      },
+                      include: [
+                      {
+                        model: Pais,
+                        required: true,
+                        as: "paises"
+                      }
+                    ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        // For debugging.
+        // console.log(JSON.stringify(medicines));
+        // const medicineFilter = medicines.filter((medicine) => medicine.creador  );
+        // console.log("medicineFilter ", JSON.stringify(medicineFilter));
+
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe enviar un idCiudad",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
 // Obtiene todos los medicamentos en general: GET /medicines-by-city-and-category ?desde=0 Body: idCiudad
 // ==========================================
 exports.getByCityIdAndCategoryId = async (req, res) => {

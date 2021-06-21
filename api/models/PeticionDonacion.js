@@ -22,7 +22,11 @@ const PeticionDonacion = sequelize.define(
     msjDonacion: {
       type: Sequelize.TEXT,
       allowNull: false,
-    }
+    },
+    isSelected: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
   },
   { tableName }
 );

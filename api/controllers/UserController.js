@@ -529,10 +529,18 @@ exports.getTokenRefreshed = async (req, res) => {
   // Buscar usuario.
   try {
     let user = await User.findByPk(idUser, {
-      include: [{
+      include: [
+        {
           model: Ciudad,
-          as: 'ciudades',
-          include: 'paises'
+          as: "ciudades",
+          required: true,
+          include: [
+            {
+              model: Estado,
+              as: "estado",
+              include: "paises",
+            },
+          ],
         },
         {
           model: Gender,
@@ -557,7 +565,7 @@ exports.getTokenRefreshed = async (req, res) => {
       mensaje: 'No se encontró al usuario.'
     });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     return res.status(500).json({
       ok: false,
       msg: 'Internal server error'
