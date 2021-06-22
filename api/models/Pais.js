@@ -21,6 +21,10 @@ const Pais = sequelize.define('Pais', {
         msg: 'El pais no puede ir vacio.'
     }
   },
+  isVisible: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: true,
+  },
 }, { tableName });
 
 module.exports = Pais;

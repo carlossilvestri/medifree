@@ -35,7 +35,14 @@ exports.register = async (req, res) => {
 exports.getAll = async (req, res) => {
     // console.log(req);
     try {
-        const paises = await Pais.findAll();
+        const paises = await Pais.findAll({
+            where: {
+                isVisible: true
+            },
+            order: [
+              ['createdAt', 'DESC']
+            ],
+        });
         return res.status(200).json({
             ok: true,
             paises
