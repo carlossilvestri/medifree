@@ -548,6 +548,20 @@ exports.delete = async (req, res, next) => {
           msg: "Acción prohibida, no es el creador del medicamento.",
         });
       }*/
+      // Actualizar isSelected del PeticionDonacion a false.
+      // Localizar el idPDonacionF del idDonanteSeleccionado seleccionado.
+      const donanteS = await DonanteSeleccionado.findByPk(idDonanteSeleccionado);
+      if(!donanteS){
+        return res.status(400).json({
+          ok: false,
+          msg: "idDonanteSeleccionado no registrado",
+        });
+      }
+      // Encontrar la PeticionDonacion necesaria para actualizarla.
+      const peticionDonacion = await PeticionDonacion.findByPk(donanteS.idPDonacionF);
+      // Actualizar la peticion donacion.
+      peticionDonacion.isSelected = false;
+      await peticionDonacion.save();
       //Eliminar el donanteS
       const resultado = await DonanteSeleccionado.destroy({
         where: {

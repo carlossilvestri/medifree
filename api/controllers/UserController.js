@@ -170,7 +170,7 @@ exports.login = async (req, res) => {
       }
 
       return res.status(401).json({
-        msg: 'Unauthorized'
+        msg: 'Credenciales inválidas'
       });
     } catch (err) {
       console.log(err);
@@ -423,7 +423,33 @@ exports.editUserById = async (req, res) => {
       user.updatedAt = new Date();
       //Metodo save de sequelize para guardar en la BDD
       const resultado = await user.save();
-      if (!resultado) return next();
+      if (!resultado){
+        return res.status(400).json({
+          ok: false,
+          msg: 'Error al guardar usuario',
+          user
+        });
+      }
+      user = await User.findByPk(idUser, {
+        include: [
+          {
+            model: Ciudad,
+            as: "ciudades",
+            required: true,
+            include: [
+              {
+                model: Estado,
+                as: "estado",
+                include: "paises",
+              },
+            ],
+          },
+          {
+            model: Gender,
+            as: 'sexos'
+          }
+        ]
+      });
       return res.status(200).json({
         ok: true,
         msg: 'Usuario Actualizado',

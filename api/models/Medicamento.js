@@ -48,7 +48,7 @@ const Medicamento = sequelize.define(
       allowNull: false,
     },
     pictureM: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT,
       allowNull: true,
     },
     isAvailable: {

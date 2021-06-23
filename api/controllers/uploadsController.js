@@ -114,6 +114,7 @@ exports.subirACloudinary = (req, res, next) => {
                 msg: "No le pertenece ese medicamento",
               });
             }
+            console.log("imgString ", imgString);
             guardarEnBDMedicines(id, imgString, res, user);
             break;
           case "users":
@@ -155,6 +156,201 @@ exports.subirACloudinary = (req, res, next) => {
     });
   });*/
 };
+/*
+Cambia/Agrega una imagen a un determinado usuario y medicamento.
+Params: token del creador del medicamento. (Obligatorio)
+Body: (form-data) imagen ('png', 'jpg', 'gif', 'jpeg')
+PATCH - Cambia/Agrega /upload-multiple/cloudinary/:tipo/:id
+*/
+exports.subirACloudinaryMultipleImages = async (req, res, next) => {
+  // Obtener los datos
+  const id = Number(req.params.id);
+  const tipo = req.params.tipo; // medicines or users
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  // console.log("req.files ", req.files);
+   // Validar que el tipo sea medicines or users
+   if (tipo == "medicines" || tipo == "users") {
+    // Todo bien
+  } else {
+    // El usuario no envio un tipo valido.
+    return res.status(400).json({
+      ok: false,
+      mensaje: "El tipo debe ser medicines o users",
+    });
+  }
+  // Si no hay foto
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).json({
+      ok: false,
+      mensaje: "No files were uploaded.",
+      errors: {
+        message: "No files were uploaded.",
+      },
+    });
+  }
+  // console.log('req.files ', req.files);
+
+  const imagenes = convertirObjImgAArray(req.files);
+  console.log('imagenes ', imagenes);
+  console.log('imagenes.length ', imagenes.length);
+  // Si el archivo pesa mas de 2mb entonces.
+  for(let i = 0; i < imagenes.length; i++){
+    if (imagenes[i].truncated) {
+      // 400 Error
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Archivo muy pesado.",
+        errors: {
+          message: "El archivo debe ser menor a 2mb",
+        },
+      });
+    }
+  }
+  let arrayImgsString = [];
+  for(let i = 0; i < imagenes.length; i++){
+    if (imagenes[i].tempFilePath) {
+      const a = await uploads(imagenes[i].tempFilePath, tipo);
+      console.log("a ", a);
+      /*
+      cloudinary.uploader.upload(
+        imagenes[i].tempFilePath,
+        {
+          folder: tipo == "medicines" ? "medicamentos/" : tipo == "users" ? "users/" : null,
+          unique_filename: true,
+          resource_type: "image",
+        },
+        async function (error, result) {
+          // console.log(result, error);
+          if (error) {
+            console.log(error);
+            // Hubo un error al subir
+            return res.status(400).json({
+              ok: false,
+              error, 
+            });
+          }
+          // El archivo se subio con exito.
+          // Guardar en la base de datos.
+          const { asset_id, url } = result;
+          const objImg = {
+            asset_id,
+            url,
+            main: (i == 0) ? true : false
+          };
+          console.log('objImg.main ', objImg.main);
+          arrayImgsString.push(objImg);
+          switch (tipo) {
+            case "medicines":
+              // Preguntar si el idQR le pertenece al usuario del token 
+              // No hace falta verificar que el token del usuario es del medicamento a editar la img mas de una vez.
+              if(i === 0){
+                let lePertenecee = await lePerteneceElToken(
+                  user,
+                  id,
+                  Medicamento 
+                ); 
+                if (!lePertenecee) {
+                  // Accion prohibida
+                  return res.status(403).json({
+                    ok: false,
+                    msg: "No le pertenece ese medicamento",
+                  });
+                }
+              }
+              // Es el ultimo?
+              if(i === (imagenes.length-1)){
+                let arr = JSON.stringify(arrayImgsString);
+                console.log("arr ", arr);
+                setTimeout(() => {
+                  guardarEnBDMedicines(id, arr, res, user);
+                }, 10500);
+              }
+              break;
+            case "users":
+             // Preguntar si el id le pertenece al usuario del token 
+              if (user.idUser == id) {
+                // Todo bien
+                guardarEnBDUsers(id, imgString, res, user);
+              } else {
+                // Accion prohibida
+                return res.status(403).json({
+                  ok: false,
+                  msg: "No le pertenece ese usuario",
+                });
+              }
+              break;
+            default:
+              break;
+          }
+        }
+      );
+      */
+    } else {
+      // El usuario no escribio bien el campo imagen en el body
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Debe enviar por body (form) imagen1",
+      });
+    }
+    /*
+    let arr = JSON.stringify(arrayImgsString);
+    await guardarEnBDMedicines(id, arr, res, user);
+    */
+  }
+  /*
+  // Ejemplo de subir a cloudinary:
+  cloudinary.uploader.upload("my_image.jpg", function (error, result) {
+    console.log(result, error);
+    res.send({
+      success: true,
+      result,
+    });
+  });*/
+};
+/*
+Convierte el obj de req.files a un arreglo de imagenes.
+@return imagen[]
+Example:
+@param {
+  // Maximo hasta imagen5
+  imagen1: {
+    name: 'circulo-1.png',
+    data: <Buffer >,
+    size: 9578,
+    encoding: '7bit',
+    tempFilePath: 'C:\\Users\\carlo\\OneDrive\\Escritorio\\Trabajo\\ProyectoTesis\\backend\\medifree\\tmp\\tmp-1-1624411462874',
+    truncated: false,
+    mimetype: 'image/png',
+    md5: '03b34f4d5d6b155a33dca05ef08a6b77',
+    mv: [Function: mv]
+  },
+  }
+*/
+function convertirObjImgAArray(obj = {}){
+  let array = [];
+  const tipoDeCampo = ['imagen1','imagen2', 'imagen3', 'imagen4', 'imagen5'];
+  for(let i = 0; i < tipoDeCampo.length; i++){
+    if(obj[tipoDeCampo[i]]){
+      array.push(obj[tipoDeCampo[i]]);
+    }
+  }
+  return array;
+}
+const uploads = (file, tipo) => {
+  return new Promise((resolve, reject) => {
+      cloudinary.uploader.upload(file, (result) => {
+          resolve({
+              url: result.url,
+              id: result.public_id,
+              asset_id: result.asset_id
+          })
+      }, {
+        folder: tipo == "medicines" ? "medicamentos/" : tipo == "users" ? "users/" : null,
+        unique_filename: true,
+        resource_type: "image",
+      })
+  })
+}
 /* Subir a la carpeta del servidor */
 
 /*
@@ -259,7 +455,6 @@ exports.uploadImgToServer = async (req, res, next) => {
       break;
   }
 };
-
 async function guardarEnBDMedicines(
   idMedicine = null,
   nombreArchivo = "",

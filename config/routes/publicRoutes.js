@@ -123,6 +123,10 @@ module.exports = () => {
     MedicamentosController.getMedicineByKeyword
   ); // Buscar los medicamentos por su nombre (Barra de busqueda).
   router.get(
+    "/medicine-by-keyword-and-by-country",
+    MedicamentosController.getMedicineByKeywordAndByCountry
+  ); // Buscar los medicamentos por su nombre (Barra de busqueda).
+  router.get(
     "/medicine-by-keyword-and-by-state",
     MedicamentosController.getMedicineByKeywordAndByState
   ); // Buscar los medicamentos por su nombre (Barra de busqueda).
@@ -193,6 +197,11 @@ module.exports = () => {
     "/upload/cloudinary/:tipo/:id",
     auth,
     uploadsController.subirACloudinary
+  ); // Editar/Agregar una img
+  router.patch(
+    "/upload-multiple/cloudinary/:tipo/:id",
+    auth,
+    uploadsController.subirACloudinaryMultipleImages
   ); // Editar/Agregar una img
 
   /* REFRESACAR TOKEN */
