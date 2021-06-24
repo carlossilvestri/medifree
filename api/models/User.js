@@ -39,7 +39,7 @@ const User = sequelize.define('User', {
     type: Sequelize.STRING,
   },
   img: {
-    type: Sequelize.STRING,
+    type: Sequelize.TEXT,
     allowNull: true,
   },
   namesU: {

@@ -206,85 +206,48 @@ exports.subirACloudinaryMultipleImages = async (req, res, next) => {
       });
     }
   }
+  switch (tipo) {
+    case "medicines":
+        // El token le pertenece al creador del medicamento?
+        let lePertenecee = await lePerteneceElToken(
+          user,
+          id,
+          Medicamento 
+        ); 
+        if (!lePertenecee) {
+          // Accion prohibida
+          return res.status(403).json({
+            ok: false,
+            msg: "No le pertenece ese medicamento",
+          });
+        }
+      break;
+    case "users":
+      // El token le pertenece al creador del medicamento?
+      let lePerteneceAlUsuario = await lePerteneceElToken(
+        user,
+        id,
+        User 
+      ); 
+      if (!lePerteneceAlUsuario) {
+        // Accion prohibida
+        return res.status(403).json({
+          ok: false,
+          msg: "No le pertenece ese token",
+        });
+      }
+      break;
+    default:
+      break;
+  }
+  // Subir las imagenes
   let arrayImgsString = [];
   for(let i = 0; i < imagenes.length; i++){
     if (imagenes[i].tempFilePath) {
-      const a = await uploads(imagenes[i].tempFilePath, tipo);
-      console.log("a ", a);
-      /*
-      cloudinary.uploader.upload(
-        imagenes[i].tempFilePath,
-        {
-          folder: tipo == "medicines" ? "medicamentos/" : tipo == "users" ? "users/" : null,
-          unique_filename: true,
-          resource_type: "image",
-        },
-        async function (error, result) {
-          // console.log(result, error);
-          if (error) {
-            console.log(error);
-            // Hubo un error al subir
-            return res.status(400).json({
-              ok: false,
-              error, 
-            });
-          }
-          // El archivo se subio con exito.
-          // Guardar en la base de datos.
-          const { asset_id, url } = result;
-          const objImg = {
-            asset_id,
-            url,
-            main: (i == 0) ? true : false
-          };
-          console.log('objImg.main ', objImg.main);
-          arrayImgsString.push(objImg);
-          switch (tipo) {
-            case "medicines":
-              // Preguntar si el idQR le pertenece al usuario del token 
-              // No hace falta verificar que el token del usuario es del medicamento a editar la img mas de una vez.
-              if(i === 0){
-                let lePertenecee = await lePerteneceElToken(
-                  user,
-                  id,
-                  Medicamento 
-                ); 
-                if (!lePertenecee) {
-                  // Accion prohibida
-                  return res.status(403).json({
-                    ok: false,
-                    msg: "No le pertenece ese medicamento",
-                  });
-                }
-              }
-              // Es el ultimo?
-              if(i === (imagenes.length-1)){
-                let arr = JSON.stringify(arrayImgsString);
-                console.log("arr ", arr);
-                setTimeout(() => {
-                  guardarEnBDMedicines(id, arr, res, user);
-                }, 10500);
-              }
-              break;
-            case "users":
-             // Preguntar si el id le pertenece al usuario del token 
-              if (user.idUser == id) {
-                // Todo bien
-                guardarEnBDUsers(id, imgString, res, user);
-              } else {
-                // Accion prohibida
-                return res.status(403).json({
-                  ok: false,
-                  msg: "No le pertenece ese usuario",
-                });
-              }
-              break;
-            default:
-              break;
-          }
-        }
-      );
-      */
+      const main = (i == 0) ? true : false;
+      const objImg = await uploadImageToCloudinary(imagenes[i], tipo,  main);
+      console.log("objImg ", objImg);
+      arrayImgsString.push(objImg);
     } else {
       // El usuario no escribio bien el campo imagen en el body
       return res.status(400).json({
@@ -292,20 +255,70 @@ exports.subirACloudinaryMultipleImages = async (req, res, next) => {
         mensaje: "Debe enviar por body (form) imagen1",
       });
     }
-    /*
-    let arr = JSON.stringify(arrayImgsString);
-    await guardarEnBDMedicines(id, arr, res, user);
-    */
   }
-  /*
-  // Ejemplo de subir a cloudinary:
-  cloudinary.uploader.upload("my_image.jpg", function (error, result) {
-    console.log(result, error);
-    res.send({
-      success: true,
-      result,
-    });
-  });*/
+  // Obtener las imagenes viejas para borrarlas.
+  switch (tipo) {
+    case "medicines":
+      try {
+        const medicina = await Medicamento.findByPk(id);
+        console.log("pictureM ", medicina.pictureM);
+        if(!medicina.pictureM || medicina.pictureM.length === 0){
+
+        }else{
+          let b = medicina.pictureM;
+          // b.replaceAll('\"', ' ');
+          let arrayObjPictuM = JSON.parse(b); // a [{ public_id: "", sset_id: "", main: true, url: ""}]
+          // console.log("arrayObjPictuM ", arrayObjPictuM);
+          arrayObjPictuM.forEach(picture => {
+            this.eliminarCloudinary(picture.public_id);
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+      break;
+    case "users":
+      try {
+        const usuarioo = await User.findByPk(id);
+        console.log("img ", usuarioo.img);
+        if(!usuarioo.img || usuarioo.img.length === 0){
+
+        }else{
+          let b = usuarioo.img;
+          // b.replaceAll('\"', ' ');
+          let arrayObjPictuM = JSON.parse(b); // a [{ public_id: "", sset_id: "", main: true, url: ""}]
+          // console.log("arrayObjPictuM ", arrayObjPictuM);
+          arrayObjPictuM.forEach(picture => {
+            this.eliminarCloudinary(picture.public_id);
+          });
+        }
+      } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+      break;
+    default:
+      break;
+  }
+  // Guardar en BD el url de las imagenes
+  console.log("arrayImgsString ", arrayImgsString);
+  let arr = JSON.stringify(arrayImgsString);
+  console.log("arr ", arr);
+  switch (tipo) {
+    case "medicines":
+      await guardarEnBDMedicines(id, arr, res, user);
+      break;
+    case "users":
+      await guardarEnBDUsers(id, arr, res, user);
+      break;
+    default:
+      break;
+  }
 };
 /*
 Convierte el obj de req.files a un arreglo de imagenes.
@@ -336,20 +349,47 @@ function convertirObjImgAArray(obj = {}){
   }
   return array;
 }
-const uploads = (file, tipo) => {
-  return new Promise((resolve, reject) => {
-      cloudinary.uploader.upload(file, (result) => {
-          resolve({
-              url: result.url,
-              id: result.public_id,
-              asset_id: result.asset_id
-          })
-      }, {
+/*
+@Params
+imagen: {
+  tempFilePath: string
+}
+tipo: string "medicines"
+main: boolean
+@Return 
+*/
+const uploadImageToCloudinary = (imagen, tipo, main ) => {
+  return new Promise((resolve, reject) =>{
+    cloudinary.uploader.upload(
+      imagen.tempFilePath,
+      {
         folder: tipo == "medicines" ? "medicamentos/" : tipo == "users" ? "users/" : null,
         unique_filename: true,
         resource_type: "image",
-      })
-  })
+      },
+      async function (error, result) {
+        // console.log(result, error);
+        if (error) {
+          console.log(error);
+          // Hubo un error al subir
+          return res.status(400).json({
+            ok: false,
+            error, 
+          });
+        }
+        // El archivo se subio con exito.
+        // Guardar en la base de datos.
+        const { asset_id, url, public_id } = result;
+        const objImg = {
+          asset_id,
+          url,
+          public_id,
+          main
+        };
+        resolve(objImg);
+      }
+    );
+  });
 }
 /* Subir a la carpeta del servidor */
 
