@@ -3,17 +3,29 @@ const pug = require('pug');
 const juice = require('juice');
 const htmlToText = require('html-to-text');
 const util = require('util');
-const emailConfig = require('../../config/email');
+const emailConfig = require('../../config/email'); // Para pruebas con SMTP
 var inlineBase64 = require('nodemailer-plugin-inline-base64');
-
+//Importar las variables de entorno:
+require('dotenv').config({ path: 'variables.env' });
 
 // create reusable transporter object using the default SMTP transport
+/*
+// Para pruebas.
 let transporter = nodemailer.createTransport({
     host: emailConfig.host,
     port: emailConfig.port,
     auth: {
         user: emailConfig.user, // generated ethereal user
         pass: emailConfig.pass // generated ethereal password
+    }
+});
+*/
+let transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: 'smtp.gmail.com',
+    auth: {
+        user: process.env.EMAIL, // email
+        pass: process.env.PASSWORDEMAIL // password
     }
 });
 const generarHTML = (archivo, opciones) => {
