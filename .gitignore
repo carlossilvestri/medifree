@@ -60,7 +60,7 @@ typings/
 # dotenv environment variables file
 .env
 variables.env
-
+variables copy.env
 # End of https://www.gitignore.io/api/node
 
 # sqlite database
