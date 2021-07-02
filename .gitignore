@@ -62,7 +62,10 @@ typings/
 variables.env
 variables copy.env
 # End of https://www.gitignore.io/api/node
-
+# Folders
+backups/
+uploads/users/*
+uploads/medicines/*
 # sqlite database
 db/database.sqlite
 

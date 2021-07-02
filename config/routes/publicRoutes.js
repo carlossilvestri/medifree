@@ -11,6 +11,7 @@ const MedicamentosController = require("../../api/controllers/MedicamentosContro
 const PeticionDonacionController = require("../../api/controllers/PeticionDonacionController");
 const DonanteSeleccionadoController = require("../../api/controllers/DonanteSeleccionadoController");
 const uploadsController = require("../../api/controllers/uploadsController");
+const { imageController } = require("../../api/controllers/ImageController");
 
 const swaggerDocumentOne = require('../../api/swagger-doc/swagger-one.json');
 //Middleware para proteger las rutas.
@@ -203,6 +204,25 @@ module.exports = () => {
     auth,
     uploadsController.subirACloudinaryMultipleImages
   ); // Editar/Agregar una img
+
+  /* IMAGES */
+  router.post(
+    "/image/:tipo/:id",
+    auth,
+    imageController.crearImagen
+  ); // Editar/Agregar una img 
+  router.post(
+    "/image-edit/:id",
+    imageController.editarImagen
+  ); // Editar/Agregar una img.
+  router.delete(
+    "/image/:idImage",
+    imageController.eliminarImagen
+  ); 
+  router.get(
+    "/image/:tipo/:id",
+    imageController.getImagesBy
+  );
 
   /* REFRESACAR TOKEN */
   router.get("/refresh-token", auth2.verificarTokenDesdeQueryLight, UserController.getTokenRefreshed); // Obtener usuarios. (Paginados, indicando desde).
