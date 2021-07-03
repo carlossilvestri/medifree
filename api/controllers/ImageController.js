@@ -157,6 +157,38 @@ const editarImagen = async (req, res, next) => {
     });
   }
 };
+const editarImgPrincipal = async (req, res, next) => {
+  const id = Number(req.params.id); // id de la imagen
+  const { mainImage } = req.body; // string
+  if(!id || !isBoolean(mainImage)){
+    mostrarError(res, "Debe ingresar un id : number y un mainImage : boolean", 400);
+  }
+  try {
+    let imagen = await Image.findByPk(id);
+    if(mainImage === "true" && !imagen.mainImage){
+      const tipo = saberTipoDesdeObjImagen(imagen);
+      let obj = {};
+      if(tipo === "medicines"){
+        obj = { nameImage: imagen.nameImage, id: imagen.idMedicamentoF, res, tipo };
+      }
+      if(tipo === "users"){
+        obj = { nameImage: imagen.nameImage, id: imagen.idUserF, res, tipo };
+      }
+      await guardarImgPrincipalEnElModelo(obj); 
+    }
+    imagen.mainImage = mainImage;
+    console.log(JSON.stringify(imagen));
+    const img = await imagen.save();
+    return res.status(200).json({
+      ok: true,
+      img,
+      msg: "Imagen Editada",
+    }); 
+  } catch (error) {
+    console.log(error);
+    mostrarError(res, "Hubo un error", 500);
+  }
+}
 // ==========================================
 // Borrar un image: DELETE /image/:idImage Ejm. /image/1
 // ==========================================
@@ -306,6 +338,13 @@ const mostrarErrorExtensionesValidas = (extensionArchivo) => {
     });
   }
 };
+const mostrarError = (res, mensaje, codigo) => {
+    // El usuario no envio un tipo valido.
+    return res.status(codigo).json({
+      ok: false,
+      mensaje: mensaje,
+    });
+}
 /* FUNCIONES */
 const saberNombreImg = (obj = {}) => {
   let img = "";
@@ -339,6 +378,20 @@ const eliminarImgLocalServer = (pathViejo) => {
     });
   }
 };
+/**
+ * 
+ * @param {
+ *  idImage:        number;
+    nameImage:      string;
+    mainImage:      boolean;
+    isVisible:      boolean;
+    createdAt:      Date;
+    updatedAt:      Date;
+    idMedicamentoF: number;
+    idUserF:        number;
+  } objImagen 
+ * @returns string
+ */
 const saberTipoDesdeObjImagen = (objImagen = {}) => {
   let tipo = "";
   if (objImagen.idMedicamentoF) {
@@ -422,21 +475,20 @@ const guardarImgPrincipalEnElModelo = async (obj) => {
     // Buscar el modelo.
     const busqueda = await model.findByPk(id);
     console.log("busqueda ", JSON.stringify(busqueda));
-    busqueda.pictureM = nameImage;
-    busqueda.img = nameImage;
+    if(tipo === "medicines"){
+      busqueda.pictureM = nameImage;
+    }
+    if(tipo === "users"){
+      busqueda.img = nameImage;
+    }
     const resultado = await busqueda.save();
     if (!resultado) {
       console.log("resultado ", resultado);
-      return res.status(400).json({
-        ok: false,
-        mensaje: "No se pudo guardar",
-      });
+      mostrarError(res, "No se pudo guardar", 400);
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      msg: "Internal server error",
-    });
+    mostrarError(res, "Internal server error", 500);
   }
 };
 /**
@@ -460,5 +512,6 @@ const imageController = {
   subirArchivoAlServer,
   editarImagen,
   eliminarImagen,
+  editarImgPrincipal
 };
 module.exports = { imageController };

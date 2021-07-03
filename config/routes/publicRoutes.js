@@ -214,11 +214,15 @@ module.exports = () => {
   router.post(
     "/image-edit/:id",
     imageController.editarImagen
-  ); // Editar/Agregar una img.
+  ); // Editar una img eliminando del servidor local la img y luego guardando la nueva, en la tabla solo edita el nombre.
   router.delete(
     "/image/:idImage",
     imageController.eliminarImagen
-  ); 
+  );
+  router.patch(
+    "/image-edit/:id",
+    imageController.editarImgPrincipal
+  ); // Solo editar el mainImg en la imagen y en los modelos ligados.
   router.get(
     "/image/:tipo/:id",
     imageController.getImagesBy
