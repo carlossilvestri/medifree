@@ -399,6 +399,26 @@ const guardarImgPrincipalEnElModelo = async (obj) => {
   console.log("tipo ", tipo);
   const model = saberTipo(tipo);
   try {
+    let objFilter = {};
+    if(model === User){
+      objFilter = {
+        idUserF: id
+      }
+    }
+    if(model === Medicamento){
+      objFilter = {
+        idMedicamentoF: id
+      }
+    }
+    // Editar las demas fotos que tengan main como true, cambiarlas por false.
+    const array = await Image.findAll({
+      where: objFilter
+    });
+    array.forEach(element => {
+      element.mainImage = false;
+      element.save();
+    });
+    console.log("array ", JSON.stringify(array));
     // Buscar el modelo.
     const busqueda = await model.findByPk(id);
     console.log("busqueda ", JSON.stringify(busqueda));
