@@ -6,7 +6,7 @@ const path = require("path");
 const Medicamento = require("../models/Medicamento");
 const User = require("../models/User");
 const Image = require("../models/Image");
-const { lePerteneceElToken } = require("../functions/function");
+const { lePerteneceElToken, stringToBoolean } = require("../functions/function");
 const { isBoolean } = require("./CategoriasController");
 
 /* END POINTS */
@@ -122,8 +122,11 @@ const editarImagen = async (req, res, next) => {
       if (saberTipo(tipo) == Medicamento) {
         idAUsar = imagen.idMedicamentoF;
       }
+      // FOR DEBUGGING.
+      console.log("mainImage IMPORTA ", mainImage);
+      console.log("stringToBoolean(mainImage) ", stringToBoolean(mainImage));
       // Es la img principal? Entonces actualizar el modelo.
-      if (mainImage === "true" || imagen.mainImage) {
+      if(mainImage === "true" || mainImage === "1" || mainImage === true){
         const obj = {
           nameImage: nombreArchivo,
           mainImage,
@@ -136,7 +139,7 @@ const editarImagen = async (req, res, next) => {
       eliminarImgLocalServer(pathViejo);
       //Cambiar el nombre de la img.
       imagen.nameImage = nombreArchivo;
-      imagen.mainImage = mainImage;
+      imagen.mainImage = stringToBoolean(mainImage);
 
       imagen.updatedAt = new Date();
       //Metodo save de sequelize para guardar en la BDD
@@ -148,6 +151,10 @@ const editarImagen = async (req, res, next) => {
         ok: true,
         msg: "Imagen Actualizada",
         imagen,
+      });
+    }else{
+      return res.status(400).json({
+        msg: "La img no existe.",
       });
     }
   } catch (err) {
@@ -165,7 +172,13 @@ const editarImgPrincipal = async (req, res, next) => {
   }
   try {
     let imagen = await Image.findByPk(id);
-    if(mainImage === "true" && !imagen.mainImage){
+    if (!imagen) {
+      return res.status(400).json({
+        ok: false,
+        msg: "Imagen no registrada",
+      });
+    }
+    if(mainImage === "true" || mainImage === "1" || mainImage === true){
       const tipo = saberTipoDesdeObjImagen(imagen);
       let obj = {};
       if(tipo === "medicines"){
@@ -175,7 +188,7 @@ const editarImgPrincipal = async (req, res, next) => {
         obj = { nameImage: imagen.nameImage, id: imagen.idUserF, res, tipo };
       }
       await guardarImgPrincipalEnElModelo(obj); 
-    }
+    } 
     imagen.mainImage = mainImage;
     console.log(JSON.stringify(imagen));
     const img = await imagen.save();
@@ -183,7 +196,7 @@ const editarImgPrincipal = async (req, res, next) => {
       ok: true,
       img,
       msg: "Imagen Editada",
-    }); 
+    });
   } catch (error) {
     console.log(error);
     mostrarError(res, "Hubo un error", 500);
@@ -225,6 +238,43 @@ const eliminarImagen = async (req, res, next) => {
       } else {
         // Eliminar la img del server local.
         eliminarImgLocalServer(pathViejo);
+        // Era la img principal? y Hay otras imagenes?
+      let objFilter = {}, obj = {};
+      if(tipo === "users"){
+        objFilter = {
+          idUserF: buscarImagen.idUserF
+        }
+      }
+      if(tipo === "medicines"){
+        objFilter = {
+          idMedicamentoF: buscarImagen.idMedicamentoF
+        }
+      }
+        const imagenes = await Image.findAll({
+          where: objFilter
+        });
+        if(imagenes){
+          if(imagenes.length > 0){
+            if(tipo === "users"){
+              obj = { nameImage: imagenes[0].nameImage, id: imagenes[0].idUserF, res, tipo };
+            }
+            if(tipo === "medicines"){
+              obj = { nameImage: imagenes[0].nameImage, id: imagenes[0].idMedicamentoF, res, tipo };
+            }
+            await guardarImgPrincipalEnElModelo(obj);
+            // Guardar el mainImage en la imagen true nueva.
+            imagenes[0].mainImage = true;
+            await imagenes[0].save();
+          }else if(imagenes.length === 0){
+            if(tipo === "users"){
+              obj = { nameImage: null, id: buscarImagen.idUserF, res, tipo };
+            }
+            if(tipo === "medicines"){
+              obj = { nameImage: null, id: buscarImagen.idMedicamentoF, res, tipo };
+            }
+            await guardarImgPrincipalEnElModelo(obj);
+          }
+        }
       }
 
       return res.status(200).json({
@@ -327,7 +377,7 @@ const errorImgTamano = (req, res) => {
 };
 const mostrarErrorExtensionesValidas = (extensionArchivo) => {
   // Solo estas extensiones son admitidas.
-  const extensionesValidas = ["png", "jpg", "gif", "jpeg"];
+  const extensionesValidas = ["png", "jpg", "jpeg"];
   if (extensionesValidas.indexOf(extensionArchivo) < 0) {
     return res.status(400).json({
       ok: false,
@@ -449,7 +499,8 @@ const guardarImgNuevaEnBD = async (obj) => {
 
 const guardarImgPrincipalEnElModelo = async (obj) => {
   const { nameImage, id, res, tipo } = obj;
-  console.log("tipo ", tipo);
+  // console.log("tipo ", tipo);
+  // console.log("nameImage ", nameImage);
   const model = saberTipo(tipo);
   try {
     let objFilter = {};

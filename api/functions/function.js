@@ -22,7 +22,7 @@ exports.lePerteneceElToken = async (user = "", id = "", model = "") => {
       } else {
         /* Preguntar si el id no le pertenece al usuario del token */
         if(resultado.idUser){
-          console.log('Resultado ', resultado);
+          // console.log('Resultado ', resultado);
             if(resultado.idUser == user.idUser){
               return true;  
             }else{
@@ -43,3 +43,10 @@ exports.lePerteneceElToken = async (user = "", id = "", model = "") => {
       return false;
     }
   }
+exports.stringToBoolean =  (string) => {
+  switch(string.toLowerCase().trim()){
+      case "true": case "yes": case "1": return true;
+      case "false": case "no": case "0": case null: return false;
+      default: return Boolean(string);
+  }
+}
