@@ -67,7 +67,7 @@ exports.register = async (req, res) => {
         const hostingFrontend = process.env.HOSTING_FRONTEND;
         // Obtener los datos del usuario reciobidor de la donacion peticionDonacion.idUsuarioF
         const usuarioRecibidorDelMedicamento = await User.findByPk(peticionDonacion.idUsuarioF);
-        //Envia el correo.
+        //Envia el correo. Para notificar al usuario de que fue seleccionado para recibir un medicamento.
         await enviarEmail.enviar({
           usuario: usuarioRecibidorDelMedicamento,
           subject:

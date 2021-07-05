@@ -1,5 +1,5 @@
 doctype html
-html(lang='en')
+html(lang='es')
     head
         meta(charset='UTF-8')
         meta(http-equiv='X-UA-Compatible' content='IE=edge')
@@ -10,7 +10,7 @@ html(lang='en')
         link(rel='stylesheet' href='estilos/notificacion-donante-s.css')
         style
             include estilos/notificacion-donante-s.css
-        title Donante Selecciondo
+        title +1 Solicitud para Donar
     body
         // Crear el header de medifree
         header
@@ -18,11 +18,9 @@ html(lang='en')
                 img(src='https://vale-dev.s3.us-west-2.amazonaws.com/product/305-ProductodePrueba1-img2/img-medifree-logo.png' alt='MediFree')
         main
             .cont-main
-                .cont-img
-                    img(src='https://res.cloudinary.com/silvestric/image/upload/v1624247019/img-medifree/congrats_a0ov2m.jpg' alt='Congratulations MediFree')
                 .cont-main-text
-                    h1 ¡Felicidades! 
-                    h3 Hola, #{usuario.namesU}. Has sido seleccionado/a para recibir una donación para el medicamento #{medicine.nameM}. Por favor ingresa a 
+                    h1 ¡Tienes una petición de donación! 
+                    h3 Hola, #{usuario.namesU}. #{usuarioQueQuiereRecibirElMedicamento.namesU} está interesado/a en que le dones el medicamento #{medicine.nameM}. Por favor, ingresa a "Mis solicitudes para donar", en la página 
                         a(href=`${hostingFrontend}` target='_blank' rel='noopener noreferrer') #{hostingFrontend}
         footer
             .cont-img-complemento

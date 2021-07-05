@@ -6,23 +6,14 @@ body {
 
 .cont-fondo-color {
   background-color: #9fcdf3;
-  width: 100%;
   height: 140px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  text-align: center;
 }
 
 .cont-fondo-color img {
   width: 180px;
 }
-.cont-fondo-color h2 {
+.cont-fondo-color h3 {
   color: #fff;
   text-align: center;
   width: 100%;

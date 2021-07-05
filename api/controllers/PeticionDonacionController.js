@@ -1,11 +1,13 @@
 const { lePerteneceElToken } = require("../functions/function");
 const Ciudad = require("../models/Ciudad");
 const Estado = require("../models/Estado");
-const Gender = require("../models/Gender");
 const Medicamento = require("../models/Medicamento");
+const Categoria = require("../models/Categoria");
 const PeticionDonacion = require("../models/PeticionDonacion");
 const User = require("../models/User");
-const { isBoolean } = require("./CategoriasController");
+//Extraer valores de variables.env
+require('dotenv').config({ path: 'variables.env' });
+const enviarEmail = require("../handlers/emails");
 /*
 ==========================================
 Registrar un peticion-donacion: POST - /peticion-donacion Body: (x-www-form-urlencoded) msjDonacion
@@ -13,7 +15,7 @@ Registrar un peticion-donacion: POST - /peticion-donacion Body: (x-www-form-urle
 */
 exports.register = async (req, res) => {
   const { msjDonacion, idMedicineF } = req.body;
-  const user = req.user; // Al tener el token puedo tener acceso a req.usuario
+  const user = req.user; // Al tener el token puedo tener acceso a req.usuario. USUARIO QUIEN CREÓ LA PETICION DE DONACION.
   if (msjDonacion && idMedicineF && user) {
     try {
       const peticionDonacion = await PeticionDonacion.create({
@@ -21,6 +23,50 @@ exports.register = async (req, res) => {
         idMedicineF,
         idUsuarioF: user.idUser,
       });
+      // Conocer quien fue el que invento el medicamento.
+      const medicine = await Medicamento.findByPk(idMedicineF, {
+        order: [["createdAt", "DESC"]],
+        include: [
+          {
+            model: Categoria,
+            as: "categoria",
+          },
+          {
+            model: User,
+            required: true,
+            as: "creador",
+            include: [
+              "sexos",
+              {
+                model: Ciudad,
+                required: true,
+                as: "ciudades",
+                include: [
+                  {
+                    model: Estado,
+                    as: "estado",
+                    include: "paises",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+      const hostingFrontend = process.env.HOSTING_FRONTEND;
+      // Notificar al creador del medicamento de que alguien creó una solicitud para pedir el medicamento, y este debe evaluarla.
+     console.log("medicine ", JSON.stringify(medicine));
+      
+      await enviarEmail.enviar({
+        usuario: medicine.creador,
+        usuarioQueQuiereRecibirElMedicamento: user,
+        subject:
+          "+1 Solicitud para Donar un Medicamento",
+        archivo: "notificacionCreadorMedicamento",
+        medicine,
+        hostingFrontend
+      });
+
       return res.status(200).json({
         ok: true,
         peticionDonacion,
