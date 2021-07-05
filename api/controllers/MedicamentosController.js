@@ -778,7 +778,7 @@ exports.getByCountryId = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los medicamentos en general: GET /medicines-by-city-and-category ?desde=0 Body: idCiudad
+// Obtiene todos los medicamentos en general: GET /medicines-by-city-and-category ?desde=0 Body: idCiudad idCategoriaF
 // ==========================================
 exports.getByCityIdAndCategoryId = async (req, res) => {
   let desde = req.query.desde || 0;
@@ -864,7 +864,7 @@ exports.getByCityIdAndCategoryId = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los medicamentos en general: GET /medicines-by-city-and-category ?desde=0 Body: idCiudad
+// Obtiene todos los medicamentos en general: GET /medicines-by-state-and-category ?desde=0 Body: idEstadoF
 // ==========================================
 exports.getByStateIdAndCategoryId = async (req, res) => {
   let desde = req.query.desde || 0;
@@ -900,7 +900,7 @@ exports.getByStateIdAndCategoryId = async (req, res) => {
                   model: Ciudad,
                   required: true,
                   where: {
-                    idCiudadF: idCiudad,
+                    idEstadoF,
                   },
                   as: "ciudades",
                   include: [
@@ -940,6 +940,93 @@ exports.getByStateIdAndCategoryId = async (req, res) => {
       return res.status(400).json({
         ok: false,
         msg: "Debe enviar un idCiudad && idCategoriaF",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicinas de una categoría de un país: especifico GET /medicine-by-category-id-and-country-id?desde=0&idCategoria=1&idPaisF=1
+// ==========================================
+exports.getMedicineByCategoryIdAndCountryId = async (req, res) => {
+  let desde = req.query.desde || 0;
+  let idCategoria = req.query.idCategoria || 0;
+  let idPaisF = req.query.idPaisF || 0;
+  desde = Number(desde);
+  idCategoria = Number(idCategoria);
+  idPaisF = Number(idPaisF);
+  // console.log(user);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (idCategoria && idPaisF) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            idCategoriaF: idCategoria,
+            isActive: true,
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              as: "categoria",
+            },
+            {
+              model: User,
+              as: "creador",
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  required: true,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      required: true,
+                      as: "estado",
+                      where: {
+                        idPaisF,
+                      },
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        if (!medicines) {
+          return res.status(400).json({
+            ok: false,
+            msg: "No hay resultados de medicamentos para ese idCategoria",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Ingrese una idCategoria",
       });
     }
   } else {
@@ -1030,7 +1117,7 @@ exports.getMedicineByUserId = async (req, res) => {
   }
 };
 // ==========================================
-// Obtiene todos los medicines: GET /medicine-by-category-id?desde=0&idCategoria=1
+// Obtiene todos los medicines de una categoría de cualquier país: GET /medicine-by-category-id?desde=0&idCategoria=1
 // ==========================================
 exports.getMedicineByCategoryId = async (req, res) => {
   let desde = req.query.desde || 0;

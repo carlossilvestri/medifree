@@ -114,11 +114,19 @@ module.exports = () => {
   router.get(
     "/medicine-by-category-id",
     MedicamentosController.getMedicineByCategoryId
-  ); // Obtener los medicamentos del usuario del token.
+  ); // Obtener los medicamentos de un categoria especifica, en TODOS los paises.
   router.get(
     "/medicines-by-city-and-category",
     MedicamentosController.getByCityIdAndCategoryId
-  ); // Obtener los medicamentos del usuario del token.
+  ); // Obtener los medicamentos  de un categoria especifica y de una ciudad especifica.
+  router.get(
+    "/medicines-by-state-and-category",
+    MedicamentosController.getByStateIdAndCategoryId
+  ); // Obtener los medicamentos de un categoria especifica y de un país especifico.
+  router.get(
+    "/medicine-by-category-id-and-country-id",
+    MedicamentosController.getMedicineByCategoryIdAndCountryId
+  ); // Obtener los medicamentos de un categoria especifica y de un país especifico.
   router.get(
     "/medicine-by-keyword",
     MedicamentosController.getMedicineByKeyword
