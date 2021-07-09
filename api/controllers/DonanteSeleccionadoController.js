@@ -306,10 +306,12 @@ exports.getByUserCreadorId = async (req, res) => {
             {
               model: PeticionDonacion,
               as: "peticionDonacion",
+              required: true,
               include: [
                 {
                   model: Medicamento,
                   as: "medicamento",
+                  required: true,
                   include: [
                     "categoria",
                     {
