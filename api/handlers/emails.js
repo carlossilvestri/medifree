@@ -21,14 +21,14 @@ let transporter = nodemailer.createTransport({
 });
 */
 
-let transporter = nodemailer.createTransport({
-    // service: process.env.EMAIL_SERVICE,
-    host: process.env.EMAIL_HOST,
+let transport = nodemailer.createTransport({
+    service: "gmail",
+    host: 'smtp.gmail.com',
     auth: {
-        user: process.env.EMAIL, // email
+        user: process.env.EMAIL, // user
         pass: process.env.PASSWORDEMAIL // password
     }
-});
+})
 
 /* let transporter =  nodemailer.createTransport("SMTP", {
     host: 'smtp.zoho.com',
