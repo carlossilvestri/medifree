@@ -21,7 +21,7 @@ let transporter = nodemailer.createTransport({
 });
 */
 
-let transport = nodemailer.createTransport({
+let transporter = nodemailer.createTransport({
     service: "gmail",
     host: 'smtp.gmail.com',
     auth: {
