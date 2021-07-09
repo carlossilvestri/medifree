@@ -24,8 +24,6 @@ let transporter = nodemailer.createTransport({
 let transporter = nodemailer.createTransport({
     // service: process.env.EMAIL_SERVICE,
     host: process.env.EMAIL_HOST,
-    port: 465,
-    secure: true, // use SSL
     auth: {
         user: process.env.EMAIL, // email
         pass: process.env.PASSWORDEMAIL // password

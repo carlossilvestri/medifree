@@ -68,14 +68,7 @@
  const host = process.env.HOST || "0.0.0.0";
  const port = process.env.PORT || 2017;
 
-
- const sslServer = https.createServer({
-   key: fs.readFileSync(path.join(__dirname,'certficates/ca182_e0deb_4ad51dabd8b0ba3c783265c1f1b26487.key')),
-   cert: fs.readFileSync(path.join(__dirname,'certficates/medifree_site_ca182_e0deb_1632873599_91b434893f1a547fe27049c7c481f839.crt')),
- }, app);
-
-if(environment == "development"){
-  app.listen(port, host, () => {
+app.listen(port, host, () => {
     if (
       environment !== "production" &&
       environment !== "development" &&
@@ -91,22 +84,4 @@ if(environment == "development"){
     );
     return DB;
   });
-}else{
-  sslServer.listen(port, host, () => {
-    if (
-      environment !== "production" &&
-      environment !== "development" &&
-      environment !== "testing"
-    ) {
-      console.error(
-        `NODE_ENV is set to ${environment}, but only production and development are valid.`
-      );
-      // process.exit(1);
-    }
-    console.log(
-      `El servidor funciona en el puerto ${port} y en el host ${host} `
-    );
-    return DB;
-  });
-}
  
