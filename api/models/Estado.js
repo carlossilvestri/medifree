@@ -14,10 +14,6 @@ const Estado = sequelize.define(
     },
     nombreEstado: {
       type: Sequelize.STRING(50),
-      unique: {
-        args: true, 
-        msg: "Estado ya registrado.",
-      },
       allowNull: false,
       notEmpty: {
         msg: "El estado no puede ir vacio.",
