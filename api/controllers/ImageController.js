@@ -377,7 +377,7 @@ const errorImgTamano = (req, res) => {
 };
 const mostrarErrorExtensionesValidas = (extensionArchivo) => {
   // Solo estas extensiones son admitidas.
-  const extensionesValidas = ["png", "jpg", "jpeg"];
+  const extensionesValidas = ["png", "jpg", "jpeg", "webp"];
   if (extensionesValidas.indexOf(extensionArchivo) < 0) {
     return res.status(400).json({
       ok: false,
