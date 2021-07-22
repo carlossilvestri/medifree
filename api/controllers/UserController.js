@@ -154,6 +154,11 @@ exports.login = async (req, res) => {
           msg: "Bad Request: User not found",
         });
       }
+      if(!user.isActive){
+        return res.status(403).json({
+          msg: "Su usuario está deshabilitado",
+        });
+      }
 
       if (bcryptService().comparePassword(password, user.password)) {
         const token = authService().issue({
@@ -607,7 +612,7 @@ exports.getAll = async (req, res) => {
       return res.status(200).json({
         ok: true,
         cantidadUsuarios,
-        users,
+        usuarios: users,
       });
     } catch (err) {
       console.log(err);
