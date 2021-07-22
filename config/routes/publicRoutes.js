@@ -94,6 +94,7 @@ module.exports = () => {
   // ADM-MEDICAMENTOS
   router.patch("/activate-medicine/:idMedicine", MedicamentosController.editByIdisAvailableAdm); // Habilitar o deshabilitar un medicamento.
   router.get("/medicine-by-keyword-adm", MedicamentosController.getMedicineByKeywordAdm); // Obtener los medicamentos de todos los paises paginados, sin importar que esten deshabilitados (isActive = false).
+  router.get("/medicines-all-countries-adm", MedicamentosController.getAllMedicinesAllCountriesAdm); // Obtener los medicamentos de todos los paises paginados, sin importar que esten deshabilitados (isActive = false).
 
 
 

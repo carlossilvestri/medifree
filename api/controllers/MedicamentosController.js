@@ -1409,6 +1409,72 @@ exports.editByIdisAvailable = async (req, res) => {
 
 /*** ------- ADMINISTRADOR ------- ***/
 // ==========================================
+// Obtiene todos los medicamentos en general: GET /medicines-all-countries-adm ?desde=0
+// ==========================================
+exports.getAllMedicinesAllCountriesAdm = async (req, res) => {
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    try {
+      const medicines = await Medicamento.findAll({
+        limit: 10,
+        offset: desde,
+        order: [["createdAt", "DESC"]],
+        include: [
+          {
+            model: Categoria,
+            as: "categoria",
+          },
+          {
+            model: User,
+            as: "creador",
+            include: [
+              "sexos",
+              {
+                model: Ciudad,
+                as: "ciudades",
+                include: [
+                  {
+                    model: Estado,
+                    as: "estado",
+                    include: "paises",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+      if (!medicines) {
+        // 400 (Bad Request)
+        return res.status(400).json({
+          ok: false,
+          msg: "No hay medicamentos",
+        });
+      }
+      const cantidadMedicamentos = medicines.length;
+      return res.status(200).json({
+        ok: true,
+        desde,
+        cantidadMedicamentos,
+        medicines,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        msg: "Internal server error",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
 // Editar campo isActive (Habilitado/deshabilitado) de un medicamento: PATCH /activate-medicine/:idMedicine Ejm. /medicine/1
 // ==========================================
 exports.editByIdisAvailableAdm = async (req, res) => {
