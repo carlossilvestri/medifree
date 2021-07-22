@@ -82,6 +82,20 @@ module.exports = () => {
     auth,
     UserController.editPassword
   ); // Modificar solo el password. Sirve cuando se han contestado correctamente las preguntas de seguridad.
+  
+  /* ADMINISTRADOR */
+
+  // ADM-USUARIOS
+  router.get("/adm-statistics", UserController.getAdmStatistics); // Estadisticas de administrador.
+  router.get("/users-by-keyword-all-countries", UserController.getUsersByKeywordAllCountries); // Estadisticas de administrador.
+  router.patch("/super-adm/:id", UserController.editSuperAdministrator); // Editar permisos de superadministrador.
+  router.patch("/activate-user/:id", UserController.deshabilitarOHabilitarUsuario); // Habilitar o deshabilitar un usuario.
+
+  // ADM-MEDICAMENTOS
+  router.patch("/activate-medicine/:idMedicine", MedicamentosController.editByIdisAvailableAdm); // Habilitar o deshabilitar un medicamento.
+  router.get("/medicine-by-keyword-adm", MedicamentosController.getMedicineByKeywordAdm); // Obtener los medicamentos de todos los paises paginados, sin importar que esten deshabilitados (isActive = false).
+
+
 
   /* Question Recovery */
   router.post("/qr", auth, QuestionRecoveryController.register); // Registra nuevas preguntas de seguridad.

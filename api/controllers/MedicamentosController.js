@@ -63,6 +63,10 @@ exports.getAll = async (req, res) => {
         limit: 10,
         offset: desde,
         order: [["createdAt", "DESC"]],
+        where: {
+          isActive: true,
+          isAvailable: true
+        },
         include: [
           {
             model: Categoria,
@@ -1399,6 +1403,140 @@ exports.editByIdisAvailable = async (req, res) => {
     return res.status(400).json({
       ok: false,
       msg: "Faltan datos por completar. Verificar el token.",
+    });
+  }
+};
+
+/*** ------- ADMINISTRADOR ------- ***/
+// ==========================================
+// Editar campo isActive (Habilitado/deshabilitado) de un medicamento: PATCH /activate-medicine/:idMedicine Ejm. /medicine/1
+// ==========================================
+exports.editByIdisAvailableAdm = async (req, res) => {
+  // Debuggear
+  // console.log('req.body ', req.body);
+
+  // Obtener los datos por destructuring.
+  const { idMedicine } = req.params;
+  let { isActive } = req.body;
+  console.log("isActive ", isActive);
+  if (isBoolean(isActive)) {
+    try {
+      /* Buscar la medicamento. */
+      let medicine = await Medicamento.findByPk(idMedicine);
+      if (!medicine){
+        return res.status(404).json({
+          ok: false,
+          msg: "El medicamento no se encontró en la BD.",
+        });
+      }
+      //Cambiar las medicamentos.
+      medicine.isActive = isActive;
+      medicine.updatedAt = new Date();
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await medicine.save();
+      if (!resultado) {
+        return res.status(500).json({
+          ok: false,
+          msg: "No se pudo guardar",
+        });
+      }
+      return res.status(200).json({
+        ok: true,
+        msg: "Medicamento Actualizado",
+        medicine,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        ok: false,
+        msg: "Internal server error",
+      });
+    }
+  } else {
+    return res.status(400).json({
+      ok: false,
+      msg: "Faltan datos por completar. isActive ",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicamentos en general sin importar el estado o la ciudad pero por palabra clave: GET /medicine-by-keyword-adm ?desde=0
+// ==========================================
+exports.getMedicineByKeywordAdm = async (req, res) => {
+  let desde = req.query.desde || 0;
+  const nameM = req.query.nameM;
+  desde = Number(desde);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (nameM) {
+      try {
+        const medicines = await Medicamento.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            nameM: {
+              [Op.like]: "%" + nameM + "%",
+            }
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Categoria,
+              as: "categoria",
+            },
+            {
+              model: User,
+              as: "creador",
+              include: [
+                "sexos",
+                {
+                  model: Ciudad,
+                  as: "ciudades",
+                  include: [
+                    {
+                      model: Estado,
+                      as: "estado",
+                      include: "paises",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        });
+        if (!medicines) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            medicines: [],
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadMedicamentos = medicines.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadMedicamentos,
+          medicines,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe ingresar un nameM",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
     });
   }
 };

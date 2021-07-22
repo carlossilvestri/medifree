@@ -1,13 +1,16 @@
-const { lePerteneceElToken } = require('../functions/function');
-const Ciudad = require('../models/Ciudad');
-const Estado = require('../models/Estado');
-const Gender = require('../models/Gender');
-const User = require('../models/User');
-const authService = require('../services/auth.service');
-const bcryptService = require('../services/bcrypt.service');
-const {
-  isBoolean
-} = require('./CategoriasController');
+const { lePerteneceElToken } = require("../functions/function");
+const Ciudad = require("../models/Ciudad");
+const Estado = require("../models/Estado");
+const Pais = require("../models/Pais");
+const Gender = require("../models/Gender");
+const User = require("../models/User");
+const Medicamento = require("../models/Medicamento");
+const DonanteSeleccionado = require("../models/DonanteSeleccionado");
+const Categoria = require("../models/Categoria");
+const { Op } = require("sequelize"); // Sequelize operator.
+const authService = require("../services/auth.service");
+const bcryptService = require("../services/bcrypt.service");
+const { isBoolean } = require("./CategoriasController");
 
 /*
 ==========================================
@@ -15,7 +18,6 @@ Registrar un usuario nuevo: POST - /user Body: (x-www-form-urlencoded) password 
 ==========================================
 */
 exports.register = async (req, res) => {
-
   // Debuggear
   // console.log('req.body ', req.body);
 
@@ -32,7 +34,7 @@ exports.register = async (req, res) => {
     directionU,
     idGenderF,
     tlf1,
-    tlf2
+    tlf2,
   } = req.body;
   // console.log('tlf1 ', tlf1);
   /*
@@ -42,75 +44,75 @@ exports.register = async (req, res) => {
   password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
   */
   // Validar los datos
-      try {
-        let user;
-        // Si el usuario ingreso un tlf adicional.
-        if (tlf2) {
-          user = await User.create({
-            emailU,
-            password,
-            namesU,
-            lastNamesU,
-            identificationU,
-            idCiudadF,
-            dateOfBirth,
-            directionU,
-            idGenderF,
-            tlf1,
-            tlf2
-          });
-        } else {
-          user = await User.create({
-            emailU,
-            password,
-            namesU,
-            lastNamesU,
-            identificationU,
-            idCiudadF,
-            dateOfBirth,
-            directionU,
-            idGenderF,
-            tlf1,
-            tlf2: ''
-          });
-        }
-        // console.log('user ', user);
-        // console.log('user.dataValues.idUser ', user.dataValues.idUser );
-        const token = authService().issue({
-          user
-        });
+  try {
+    let user;
+    // Si el usuario ingreso un tlf adicional.
+    if (tlf2) {
+      user = await User.create({
+        emailU,
+        password,
+        namesU,
+        lastNamesU,
+        identificationU,
+        idCiudadF,
+        dateOfBirth,
+        directionU,
+        idGenderF,
+        tlf1,
+        tlf2,
+      });
+    } else {
+      user = await User.create({
+        emailU,
+        password,
+        namesU,
+        lastNamesU,
+        identificationU,
+        idCiudadF,
+        dateOfBirth,
+        directionU,
+        idGenderF,
+        tlf1,
+        tlf2: "",
+      });
+    }
+    // console.log('user ', user);
+    // console.log('user.dataValues.idUser ', user.dataValues.idUser );
+    const token = authService().issue({
+      user,
+    });
 
-        return res.status(201).json({
-          ok: true,
-          token,
-          user
-        });
-      } catch (err) {
-        if (err.original) {
-          if (err.original.errno == 1452 || err.original.errno == 1062) {
-            // Accion Prohibida
-            return res.status(403).json({
-              ok: false,
-              msg: err.original.sqlMessage
-            });
-          }
-        }
-        if (err.errors[0]) {
-          if (err.errors[0].type == 'Validation error') {
-            // Accion Prohibida
-            return res.status(403).json({
-              ok: false,
-              msg: err.errors[0].message
-            });
-          }
-        }
-        console.log(err);
-        // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
-        return res.status(500).json({
+    return res.status(201).json({
+      ok: true,
+      token,
+      user,
+    });
+  } catch (err) {
+    if (err.original) {
+      if (err.original.errno == 1452 || err.original.errno == 1062) {
+        // Accion Prohibida
+        return res.status(403).json({
           ok: false,
-          msg: 'Internal server error'
+          msg: err.original.sqlMessage,
         });
       }
+    }
+    if (err.errors[0]) {
+      if (err.errors[0].type == "Validation error") {
+        // Accion Prohibida
+        return res.status(403).json({
+          ok: false,
+          msg: err.errors[0].message,
+        });
+      }
+    }
+    console.log(err);
+    // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
+    return res.status(500).json({
+      ok: false,
+      msg: "Internal server error",
+    });
+  }
 };
 /*
 ==========================================
@@ -118,133 +120,15 @@ POST - /user (Devuelve un usuario logueado con su token valido)
 ==========================================
 */
 exports.login = async (req, res) => {
-  const {
-    emailU,
-    password
-  } = req.body;
+  const { emailU, password } = req.body;
 
   if (emailU && password) {
     try {
-      const user = await User
-        .findOne({
-          where: {
-            emailU,
-          },
-          //include: ['ciudades', 'sexos']
-          include: [
-            {
-              model: Ciudad,
-              as: "ciudades",
-              required: true,
-              include: [
-                {
-                  model: Estado,
-                  as: "estado",
-                  include: "paises",
-                },
-              ],
-            },
-            {
-              model: Gender,
-              as: 'sexos'
-            }
-          ]
-        });
-
-      if (!user) {
-        return res.status(400).json({
-          msg: 'Bad Request: User not found'
-        });
-      }
-
-      if (bcryptService().comparePassword(password, user.password)) {
-        const token = authService().issue({
-          user
-        });
-        // No mostrar el hash del password
-        user.password = ":)";
-        return res.status(200).json({
-          token,
-          user
-        });
-      }
-
-      return res.status(401).json({
-        msg: 'Credenciales inválidas'
-      });
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json({
-        msg: 'Internal server error'
-      });
-    }
-  }
-
-  return res.status(400).json({
-    msg: 'Bad Request: Email or password is wrong'
-  });
-};
-/*
-==========================================
-Middleware que valida si el token es valido, si no está expirado, está bien escrito.
-==========================================
-*/
-exports.validarToken = (req, res, next) => {
-  const {
-    token
-  } = req.body;
-
-  authService().verify(token, (err) => {
-    if (err) {
-      return res.status(401).json({
-        isvalid: false,
-        err: 'Invalid Token!'
-      });
-    }
-    next();
-    /*return res.status(200).json({
-      isvalid: true
-    });*/
-  });
-};
-exports.validate = (req, res) => {
-  const {
-    token
-  } = req.body;
-
-  authService().verify(token, (err) => {
-    if (err) {
-      return res.status(401).json({
-        isvalid: false,
-        err: 'Invalid Token!'
-      });
-    }
-    return res.status(200).json({
-      isvalid: true
-    });
-  });
-};
-/*
-==========================================
-Obtener Users: GET - /users Params: ?desde=0 (Devuelve un arreglo de Users limitandolo a 10 y decidiendo desde para la paginacion) sino se envia un desde por default sera 0.
- Los mas recientes primero. (Order by DESC) 
-==========================================
-*/
-exports.getAll = async (req, res) => {
-  let desde = req.query.desde || 0;
-  desde = Number(desde);
-
-  // For debugging purposes
-  // console.log(' desde ', desde);
-  // return;
-  if (desde == 0 || desde > 0) {
-    try {
-      let users = await User.findAll({
-        limit: 10,
-        offset: desde,
-        order: [
-          ['createdAt', 'DESC']
-        ],
+      const user = await User.findOne({
+        where: {
+          emailU,
+        },
+        //include: ['ciudades', 'sexos']
         include: [
           {
             model: Ciudad,
@@ -260,35 +144,79 @@ exports.getAll = async (req, res) => {
           },
           {
             model: Gender,
-            as: 'sexos'
-          }
-        ]
+            as: "sexos",
+          },
+        ],
       });
-      const cantidadUsuarios = users.length;
-      // No mostrar el password de los usuarios.
-      for (let i = 0; i < cantidadUsuarios; i++) {
-        users[i].password = ":)"
+
+      if (!user) {
+        return res.status(400).json({
+          msg: "Bad Request: User not found",
+        });
       }
-      // console.log('users ', users.length);
-      return res.status(200).json({
-        ok: true,
-        cantidadUsuarios,
-        users
+
+      if (bcryptService().comparePassword(password, user.password)) {
+        const token = authService().issue({
+          user,
+        });
+        // No mostrar el hash del password
+        user.password = ":)";
+        return res.status(200).json({
+          token,
+          user,
+        });
+      }
+
+      return res.status(401).json({
+        msg: "Credenciales inválidas",
       });
     } catch (err) {
       console.log(err);
       return res.status(500).json({
-        ok: false,
-        msg: 'Internal server error'
+        msg: "Internal server error",
       });
     }
-  } else {
-    // 400 (Bad Request)
-    return res.status(400).json({
-      ok: false,
-      msg: 'El parametro desde no es válido'
-    });
   }
+
+  return res.status(400).json({
+    msg: "Bad Request: Email or password is wrong",
+  });
+};
+/*
+==========================================
+Middleware que valida si el token es valido, si no está expirado, está bien escrito.
+==========================================
+*/
+exports.validarToken = (req, res, next) => {
+  const { token } = req.body;
+
+  authService().verify(token, (err) => {
+    if (err) {
+      return res.status(401).json({
+        isvalid: false,
+        err: "Invalid Token!",
+      });
+    }
+    next();
+    /*return res.status(200).json({
+      isvalid: true
+    });*/
+  });
+};
+exports.validate = (req, res) => {
+  const { token } = req.body;
+
+  authService().verify(token, (err) => {
+    if (err) {
+      return res.status(401).json({
+        isvalid: false,
+        err: "Invalid Token!",
+      });
+    }
+    return res.status(200).json({
+      isvalid: true,
+    });
+  });
 };
 /*
 Obtener Users: GET - /user/idUser
@@ -299,10 +227,10 @@ exports.getUserById = async (req, res) => {
   if (!idUser || idUser <= 0) {
     return res.status(400).json({
       ok: false,
-      mensaje: 'Debe proporcionar un idUser valido.'
+      mensaje: "Debe proporcionar un idUser valido.",
     });
   }
-  console.log('idUser ', idUser);
+  console.log("idUser ", idUser);
   // Encontra el user
   try {
     let user = await User.findByPk(idUser, {
@@ -321,31 +249,31 @@ exports.getUserById = async (req, res) => {
         },
         {
           model: Gender,
-          as: 'sexos'
-        }
-      ]
+          as: "sexos",
+        },
+      ],
     });
     // Si existe el usuario
     if (user) {
       user.password = ":)";
       return res.status(200).json({
         ok: true,
-        user
+        user,
       });
     }
     // No existe el usuario
     return res.status(400).json({
       ok: false,
-      mensaje: 'No se encontró al usuario.'
+      mensaje: "No se encontró al usuario.",
     });
   } catch (error) {
     console.log(err);
     return res.status(500).json({
       ok: false,
-      msg: 'Internal server error'
+      msg: "Internal server error",
     });
   }
-}
+};
 /*
 ==========================================
 Editar usuario por id. PUT /user/:idUser
@@ -379,7 +307,7 @@ exports.editUserById = async (req, res) => {
     directionU,
     idGenderF,
     tlf1,
-    tlf2
+    tlf2,
   } = req.body;
   // console.log('tlf1 ', tlf1);
   /*
@@ -389,81 +317,81 @@ exports.editUserById = async (req, res) => {
   password string, password2 string, emailU string, namesU string, lastNamesU string, identificationU string, idCiudadF integer,  boolean, dateOfBirth date, directionU text, idGenderF tiny string, tlf1 string, tlf2 string (opcional)
   */
   // Validar los datos
-    /*
+  /*
     El usuario debe enviar la clave y la clave repetida para confirmar su clave por seguridad.
     Clave = password
     Clave repetida = password2
     */
-    try {
-      let user = await User.findByPk(idUser);
-      // console.log('USUARIO  ', user);
-      //Cambiar el nombre del ciudad:
-      user.namesU = namesU;
-      user.lastNamesU = lastNamesU;
-      user.identificationU = identificationU;
-      if (password && password2) {
-        if (password === password2) {
+  try {
+    let user = await User.findByPk(idUser);
+    // console.log('USUARIO  ', user);
+    //Cambiar el nombre del ciudad:
+    user.namesU = namesU;
+    user.lastNamesU = lastNamesU;
+    user.identificationU = identificationU;
+    if (password && password2) {
+      if (password === password2) {
         user.password = password;
-        user.password =  bcryptService().password(user); 
-        } else {
-          return res.status(400).json({
-            ok: false,
-            msg: 'Bad Request: Passwords don\'t match'
-          });
-        }
-      }
-      user.idCiudadF = idCiudadF;
-      user.dateOfBirth = dateOfBirth;
-      user.directionU = directionU;
-      user.idGenderF = idGenderF;
-      user.tlf1 = tlf1;
-      if (tlf2 || tlf2 === '') {
-        user.tlf2 = tlf2;
-      }
-      user.updatedAt = new Date();
-      //Metodo save de sequelize para guardar en la BDD
-      const resultado = await user.save();
-      if (!resultado){
+        user.password = bcryptService().password(user);
+      } else {
         return res.status(400).json({
           ok: false,
-          msg: 'Error al guardar usuario',
-          user
+          msg: "Bad Request: Passwords don't match",
         });
       }
-      user = await User.findByPk(idUser, {
-        include: [
-          {
-            model: Ciudad,
-            as: "ciudades",
-            required: true,
-            include: [
-              {
-                model: Estado,
-                as: "estado",
-                include: "paises",
-              },
-            ],
-          },
-          {
-            model: Gender,
-            as: 'sexos'
-          }
-        ]
-      });
-      return res.status(200).json({
-        ok: true,
-        msg: 'Usuario Actualizado',
-        user
-      });
-    } catch (err) {
-      console.log(err);
-      // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
-      return res.status(500).json({
+    }
+    user.idCiudadF = idCiudadF;
+    user.dateOfBirth = dateOfBirth;
+    user.directionU = directionU;
+    user.idGenderF = idGenderF;
+    user.tlf1 = tlf1;
+    if (tlf2 || tlf2 === "") {
+      user.tlf2 = tlf2;
+    }
+    user.updatedAt = new Date();
+    //Metodo save de sequelize para guardar en la BDD
+    const resultado = await user.save();
+    if (!resultado) {
+      return res.status(400).json({
         ok: false,
-        msg: 'Internal server error'
+        msg: "Error al guardar usuario",
+        user,
       });
     }
-}
+    user = await User.findByPk(idUser, {
+      include: [
+        {
+          model: Ciudad,
+          as: "ciudades",
+          required: true,
+          include: [
+            {
+              model: Estado,
+              as: "estado",
+              include: "paises",
+            },
+          ],
+        },
+        {
+          model: Gender,
+          as: "sexos",
+        },
+      ],
+    });
+    return res.status(200).json({
+      ok: true,
+      msg: "Usuario Actualizado",
+      user,
+    });
+  } catch (err) {
+    console.log(err);
+    // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
+    return res.status(500).json({
+      ok: false,
+      msg: "Internal server error",
+    });
+  }
+};
 /*
 ==========================================
 Editar el password de un usuario. Body: password, password2
@@ -472,14 +400,11 @@ Editar el password de un usuario. Body: password, password2
 
 exports.editPassword = async (req, res) => {
   // Debuggear
-  console.log('req.body ', req.body);
+  console.log("req.body ", req.body);
   const user = req.user; // Al tener el token puedo tener acceso a req.usuario
-  console.log('req.user ', user);
+  console.log("req.user ", user);
   // Obtener los datos por destructuring.
-  const {
-    password,
-    password2,
-  } = req.body;
+  const { password, password2 } = req.body;
   // console.log('tlf1 ', tlf1);
   /*
   ===============================================
@@ -502,12 +427,12 @@ exports.editPassword = async (req, res) => {
       //Si las passwords coinciden:
       if (password && password2) {
         if (password === password2) {
-        userFound.password = password;
-        userFound.password =  bcryptService().password(userFound); 
+          userFound.password = password;
+          userFound.password = bcryptService().password(userFound);
         } else {
           return res.status(400).json({
             ok: false,
-            msg: 'Bad Request: Passwords don\'t match'
+            msg: "Bad Request: Passwords don't match",
           });
         }
       }
@@ -517,26 +442,26 @@ exports.editPassword = async (req, res) => {
       if (!resultado) return next();
       return res.status(200).json({
         ok: true,
-        msg: 'Usuario Actualizado'
+        msg: "Usuario Actualizado",
       });
     } catch (err) {
       console.log(err);
       // console.log('err.errors[0] ', err.errors[0].type == 'Validation error');
       return res.status(500).json({
         ok: false,
-        msg: 'Internal server error'
+        msg: "Internal server error",
       });
     }
   } else {
     return res.status(400).json({
       ok: false,
-      msg: 'Faltan datos por completar. (password string, password2 string'
+      msg: "Faltan datos por completar. (password string, password2 string",
     });
   }
-}
+};
 
 //==========================================
-// Edita una qr segun el email y las respuesta correctas. Params: ?idUser 
+// Edita una qr segun el email y las respuesta correctas. Params: ?idUser
 //==========================================
 exports.getTokenRefreshed = async (req, res) => {
   // Obtener la info del param (idUser).
@@ -546,12 +471,12 @@ exports.getTokenRefreshed = async (req, res) => {
   console.log('req.params.idUser ', req.query.idUser );
   */
   // Comprobar que no vengan valores vacios.
-  if(!idUser){
-      return res.status(400).json({
-        ok: false,
-        msg: "Ingrese un idUser.",
-      });
-    }
+  if (!idUser) {
+    return res.status(400).json({
+      ok: false,
+      msg: "Ingrese un idUser.",
+    });
+  }
   // Buscar usuario.
   try {
     let user = await User.findByPk(idUser, {
@@ -570,14 +495,14 @@ exports.getTokenRefreshed = async (req, res) => {
         },
         {
           model: Gender,
-          as: 'sexos'
-        }
-      ]
+          as: "sexos",
+        },
+      ],
     });
     // Si existe el usuario
     if (user) {
       const token = authService().issue({
-        user: user
+        user: user,
       });
       // Todo bien
       return res.status(200).json({
@@ -588,13 +513,277 @@ exports.getTokenRefreshed = async (req, res) => {
     // No existe el usuario
     return res.status(400).json({
       ok: false,
-      mensaje: 'No se encontró al usuario.'
+      mensaje: "No se encontró al usuario.",
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       ok: false,
-      msg: 'Internal server error'
+      msg: "Internal server error",
     });
   }
-}
+};
+
+/*** ------- ADMINISTRADOR --- ***/
+/*
+==========================================
+Obtener Users: GET - /adm-statistics Params: ?desde=0 (Devuelve la cantidad de usuarios, medicamentos, categorias, paises, estados, ciudades).
+ Los mas recientes primero. (Order by DESC) 
+==========================================
+*/
+exports.getAdmStatistics = async (req, res) => {
+  try {
+    let a = await Promise.all([
+      User.count(),
+      Medicamento.count(),
+      DonanteSeleccionado.count(),
+      Categoria.count(),
+      Pais.count(),
+      Estado.count(),
+      Ciudad.count(),
+    ]);
+    return res.status(200).json({
+      ok: true,
+      cantUsers: a[0],
+      cantMedicines: a[1],
+      cantDonations: a[2],
+      cantCategories: a[3],
+      cantCountries: a[4],
+      cantStates: a[5],
+      cantCities: a[6],
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      ok: false,
+      msg: "Internal server error",
+    });
+  }
+};
+/*
+==========================================
+Obtener Users: GET - /users Params: ?desde=0 (Devuelve un arreglo de Users limitandolo a 10 y decidiendo desde para la paginacion) sino se envia un desde por default sera 0.
+ Los mas recientes primero. (Order by DESC) 
+==========================================
+*/
+exports.getAll = async (req, res) => {
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+
+  // For debugging purposes
+  // console.log(' desde ', desde);
+  // return;
+  if (desde == 0 || desde > 0) {
+    try {
+      let users = await User.findAll({
+        limit: 10,
+        offset: desde,
+        order: [["createdAt", "DESC"]],
+        include: [
+          {
+            model: Ciudad,
+            as: "ciudades",
+            required: true,
+            include: [
+              {
+                model: Estado,
+                as: "estado",
+                include: "paises",
+              },
+            ],
+          },
+          {
+            model: Gender,
+            as: "sexos",
+          },
+        ],
+      });
+      const cantidadUsuarios = users.length;
+      // No mostrar el password de los usuarios.
+      for (let i = 0; i < cantidadUsuarios; i++) {
+        users[i].password = ":)";
+      }
+      // console.log('users ', users.length);
+      return res.status(200).json({
+        ok: true,
+        cantidadUsuarios,
+        users,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        ok: false,
+        msg: "Internal server error",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Obtiene todos los medicamentos en general sin importar el estado o la ciudad pero por palabra clave: GET /users-by-keyword-all-countries ?desde=0
+// ==========================================
+exports.getUsersByKeywordAllCountries = async (req, res) => {
+  let desde = req.query.desde || 0;
+  const namesU = req.query.namesU;
+  desde = Number(desde);
+  // console.log(req);
+  if (desde == 0 || desde > 0) {
+    if (namesU) {
+      try {
+        const usuarios = await User.findAll({
+          limit: 10,
+          offset: desde,
+          where: {
+            namesU: {
+              [Op.like]: "%" + namesU + "%",
+            },
+            isActive: true,
+          },
+          order: [["createdAt", "DESC"]],
+          include: [
+            {
+              model: Ciudad,
+              as: "ciudades",
+              required: true,
+              include: [
+                {
+                  model: Estado,
+                  as: "estado",
+                  include: "paises",
+                },
+              ],
+            },
+            {
+              model: Gender,
+              as: "sexos",
+            },
+          ],
+        });
+        if (!usuarios) {
+          // 400 (Bad Request)
+          return res.status(400).json({
+            ok: false,
+            usuarios: [],
+            msg: "No hay medicamentos",
+          });
+        }
+        const cantidadUsuarios = usuarios.length;
+        return res.status(200).json({
+          ok: true,
+          desde,
+          cantidadUsuarios,
+          usuarios,
+        });
+      } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+          msg: "Internal server error",
+        });
+      }
+    } else {
+      // 400 (Bad Request)
+      return res.status(400).json({
+        ok: false,
+        msg: "Debe ingresar un namesU",
+      });
+    }
+  } else {
+    // 400 (Bad Request)
+    return res.status(400).json({
+      ok: false,
+      msg: "El parametro desde no es válido",
+    });
+  }
+};
+// ==========================================
+// Edita el campo isSuperAdministrator a true o false: PATCH /super-adm/:id
+// ==========================================
+exports.editSuperAdministrator = async (req, res) => {
+  // Obtener el id.
+  let { id } =  req.params;
+  let { isSuperAdministrator } = req.body;
+  if(id && isBoolean(isSuperAdministrator)){
+    try {
+      let userFound = await User.findByPk(id);
+      if (!userFound){
+        return res.status(404).json({
+          ok: false,
+          msg: "El usuario no se encontró en la BD.",
+        });
+      }
+      // console.log('USUARIO  ', user);
+      userFound.isSuperAdministrator = isSuperAdministrator;
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await userFound.save();
+      if (!resultado){
+        return res.status(500).json({
+          ok: false,
+          msg: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        ok: true,
+        msg: "Usuario Actualizado",
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        ok: false,
+        msg: "Internal server error",
+      });
+    }
+  }else{
+    return res.status(400).json({
+      ok: false,
+      msg: "Ingrese un id valido, revise el campo isSuperAdministrator debe ser boolean ( /super-adm/:id )",
+    });
+  }
+};
+// ==========================================
+// Edita el campo isActive a true o false: PATCH /activate-user/:id
+// ==========================================
+exports.deshabilitarOHabilitarUsuario = async (req, res) => {
+  // Obtener el id.
+  let { id } =  req.params;
+  let { isActive } = req.body;
+  if(id && isBoolean(isActive)){
+    try {
+      let userFound = await User.findByPk(id);
+      if (!userFound){
+        return res.status(404).json({
+          ok: false,
+          msg: "El usuario no se encontró en la BD.",
+        });
+      }
+      userFound.isActive = isActive;
+      //Metodo save de sequelize para guardar en la BDD
+      const resultado = await userFound.save();
+      if (!resultado){
+        return res.status(500).json({
+          ok: false,
+          msg: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        ok: true,
+        msg: "Usuario Actualizado",
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        ok: false,
+        msg: "Internal server error",
+      });
+    }
+  }else{
+    return res.status(400).json({
+      ok: false,
+      msg: "Ingrese un id valido, revise el campo isActive debe ser boolean ( /super-adm/:id )",
+    });
+  }
+};
