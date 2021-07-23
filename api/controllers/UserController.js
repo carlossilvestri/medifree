@@ -93,7 +93,8 @@ exports.register = async (req, res) => {
         // Accion Prohibida
         return res.status(403).json({
           ok: false,
-          msg: err.original.sqlMessage,
+          msg: "Correo/Identificación ya registrado.",
+          // msg: err.original.sqlMessage,
         });
       }
     }
@@ -102,7 +103,8 @@ exports.register = async (req, res) => {
         // Accion Prohibida
         return res.status(403).json({
           ok: false,
-          msg: err.errors[0].message,
+          msg: "Correo/Identificación ya registrado.",
+          // msg: err.errors[0].message,
         });
       }
     }
